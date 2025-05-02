@@ -211,11 +211,10 @@
     <!-- 顶部导航栏 -->
     <header class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-primary text-xl font-bold">班级积分管理系统</h1>
+            <h1 class="text-primary text-xl font-bold cursor-pointer" id="app-title">班级积分管理系统</h1>
             <nav class="flex space-x-1 md:space-x-4">
                 <button id="nav-students" class="btn-nav hover:bg-primary hover:text-white">学生管理</button>
                 <button id="nav-points" class="btn-nav hover:bg-primary hover:text-white">积分管理</button>
-                <button id="nav-stats" class="btn-nav hover:bg-primary hover:text-white">统计分析</button>
                 <button id="nav-rewards" class="btn-nav hover:bg-primary hover:text-white">奖励兑换</button>
                 <button id="nav-settings" class="btn-nav hover:bg-primary hover:text-white">系统设置</button>
             </nav>
@@ -226,11 +225,113 @@
     <main class="flex-grow container mx-auto p-4 mt-4">
         <!-- 各模块内容将通过JavaScript动态加载 -->
         <div id="content-container">
-            <!-- 默认显示欢迎页面 -->
-            <div id="welcome-page" class="flex flex-col items-center justify-center min-h-[70vh]">
-                <img src="https://cdn.jsdelivr.net/gh/tailwindlabs/heroicons@latest/optimized/24/outline/academic-cap.svg" class="w-24 h-24 text-primary mb-6" alt="logo">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">欢迎使用班级积分管理系统</h2>
-                <p class="text-gray-600 mb-8">请选择上方导航栏中的功能开始使用</p>
+            <!-- 默认显示欢迎页面/仪表盘 -->
+            <div id="welcome-page" class="space-y-6">
+                <!-- 顶部卡片统计 -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-primary">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">班级总人数</p>
+                                <h3 id="dashboard-total-students" class="text-2xl font-bold text-gray-800">0</h3>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-secondary">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">小组数量</p>
+                                <h3 id="dashboard-total-groups" class="text-2xl font-bold text-gray-800">0</h3>
+                            </div>
+                            <div class="bg-secondary bg-opacity-10 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-accent">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">班级总积分</p>
+                                <h3 id="dashboard-total-points" class="text-2xl font-bold text-gray-800">0</h3>
+                            </div>
+                            <div class="bg-accent bg-opacity-10 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-green-500">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">平均积分</p>
+                                <h3 id="dashboard-avg-points" class="text-2xl font-bold text-gray-800">0</h3>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 中间部分 -->
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- 左侧：积分趋势图 -->
+                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-medium text-gray-800">积分趋势</h2>
+                            <span id="trend-details" class="text-sm text-primary hover:underline cursor-pointer">查看详情</span>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="dashboard-trend-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：积分区间分布 -->
+                    <div class="w-full md:w-1/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-medium text-gray-800">积分区间分布</h2>
+                            <span id="distribution-details" class="text-sm text-primary hover:underline cursor-pointer">查看详情</span>
+                        </div>
+                        <div class="space-y-3" id="dashboard-point-distribution">
+                            <!-- 积分区间将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部部分 -->
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- 最近积分记录 -->
+                    <div class="w-full md:w-1/2 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-medium text-gray-800">最近积分记录</h2>
+                            <button id="dashboard-more-logs" class="text-sm text-primary hover:underline">查看全部</button>
+                        </div>
+                        <div id="dashboard-recent-logs" class="max-h-[300px] overflow-y-auto">
+                            <!-- 积分记录将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 积分排行榜 -->
+                    <div class="w-full md:w-1/2 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-medium text-gray-800">积分排行榜</h2>
+                            <!-- 移除"查看全部"按钮 -->
+                        </div>
+                        <div id="dashboard-rank-list" class="max-h-[300px] overflow-y-auto">
+                            <!-- 排行榜将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- 学生管理页面 -->
@@ -563,19 +664,39 @@
                             <h2 class="text-lg font-medium text-gray-800 mb-3">班级数据概览</h2>
                             <div class="space-y-2">
                                 <div class="flex justify-between py-2 border-b border-neutral-dark">
-                                    <span class="text-gray-600">班级总人数</span>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        <span class="text-gray-600">班级总人数</span>
+                                    </div>
                                     <span id="stats-total-students" class="font-medium text-gray-800">0</span>
                                 </div>
                                 <div class="flex justify-between py-2 border-b border-neutral-dark">
-                                    <span class="text-gray-600">小组数量</span>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                        </svg>
+                                        <span class="text-gray-600">小组数量</span>
+                                    </div>
                                     <span id="stats-total-groups" class="font-medium text-gray-800">0</span>
                                 </div>
                                 <div class="flex justify-between py-2 border-b border-neutral-dark">
-                                    <span class="text-gray-600">总积分</span>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-600">总积分</span>
+                                    </div>
                                     <span id="stats-total-points" class="font-medium text-gray-800">0</span>
                                 </div>
                                 <div class="flex justify-between py-2">
-                                    <span class="text-gray-600">平均积分</span>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                        <span class="text-gray-600">平均积分</span>
+                                    </div>
                                     <span id="stats-avg-points" class="font-medium text-gray-800">0</span>
                                 </div>
                             </div>
@@ -966,9 +1087,310 @@
             // 只初始化欢迎页面和数据，所有功能模块懒加载
             // 这样可以提高首次加载速度
             initializeData();
+            initWelcomePage(); // 初始化首页仪表盘
             showPage('welcome-page');
+            
+            // 添加项目标题点击事件
+            document.getElementById('app-title').addEventListener('click', () => {
+                showPage('welcome-page');
+            });
         }
         
+        // 初始化欢迎页面仪表盘
+        function initWelcomePage() {
+            updateDashboardStats();
+            drawDashboardCharts();
+            loadDashboardRecentLogs();
+            loadDashboardRankings();
+            
+            // 添加点击事件
+            document.getElementById('dashboard-more-logs').addEventListener('click', () => {
+                showPage('points-page');
+                if (!initializedPages['points-page']) {
+                    initPageOnDemand('points-page');
+                    initializedPages['points-page'] = true;
+                }
+            });
+            
+            // 添加积分趋势和分布详情查看事件
+            document.getElementById('trend-details').addEventListener('click', () => {
+                showPage('stats-page');
+                if (!initializedPages['stats-page']) {
+                    initPageOnDemand('stats-page');
+                    initializedPages['stats-page'] = true;
+                }
+            });
+            
+            document.getElementById('distribution-details').addEventListener('click', () => {
+                showPage('stats-page');
+                if (!initializedPages['stats-page']) {
+                    initPageOnDemand('stats-page');
+                    initializedPages['stats-page'] = true;
+                }
+            });
+        }
+        
+        // 更新仪表盘统计数据
+        function updateDashboardStats() {
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            const pointLogs = loadData('app_pointLogs');
+            
+            // 计算总积分
+            const totalPoints = students.reduce((sum, student) => sum + (student.totalPoints || 0), 0);
+            
+            // 更新数据
+            document.getElementById('dashboard-total-students').textContent = students.length;
+            document.getElementById('dashboard-total-groups').textContent = groups.length;
+            document.getElementById('dashboard-total-points').textContent = totalPoints;
+            document.getElementById('dashboard-avg-points').textContent = students.length > 0 
+                ? Math.round(totalPoints / students.length * 10) / 10
+                : 0;
+        }
+        
+        // 绘制仪表盘图表
+        function drawDashboardCharts() {
+            // 绘制积分趋势图
+            drawDashboardTrendChart();
+            
+            // 更新积分分布
+            updateDashboardDistribution();
+        }
+        
+        // 绘制仪表盘趋势图
+        function drawDashboardTrendChart() {
+            const pointLogs = loadData('app_pointLogs');
+            
+            if (pointLogs.length === 0) {
+                document.getElementById('dashboard-trend-chart').parentNode.innerHTML = 
+                    '<div class="flex items-center justify-center h-64 text-gray-500">暂无积分数据</div>';
+                return;
+            }
+            
+            // 按日期分组并计算每天的积分
+            const dailyPoints = {};
+            
+            pointLogs.forEach(log => {
+                const date = log.createdAt.split('T')[0];
+                if (!dailyPoints[date]) {
+                    dailyPoints[date] = 0;
+                }
+                dailyPoints[date] += parseInt(log.points);
+            });
+            
+            // 转换为数组并按日期排序
+            const sortedDates = Object.keys(dailyPoints).sort();
+            
+            // 计算累计积分
+            let cumulative = 0;
+            const cumulativePoints = [];
+            
+            sortedDates.forEach(date => {
+                cumulative += dailyPoints[date];
+                cumulativePoints.push(cumulative);
+            });
+            
+            // 只显示最近15天的数据
+            const labels = sortedDates.slice(-15);
+            const data = cumulativePoints.slice(-15);
+            
+            // 绘制图表
+            const ctx = document.getElementById('dashboard-trend-chart').getContext('2d');
+            
+            // 如果已经有图表，销毁它
+            if (window.dashboardTrendChart) {
+                window.dashboardTrendChart.destroy();
+            }
+            
+            window.dashboardTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '班级总积分',
+                        data: data,
+                        backgroundColor: 'rgba(255, 133, 162, 0.2)',
+                        borderColor: 'rgba(255, 133, 162, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 133, 162, 1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const date = new Date(tooltipItems[0].label);
+                                    return date.toLocaleDateString('zh-CN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新仪表盘积分分布
+        function updateDashboardDistribution() {
+            const students = loadData('app_students');
+            const distributionContainer = document.getElementById('dashboard-point-distribution');
+            
+            // 清空容器
+            distributionContainer.innerHTML = '';
+            
+            if (students.length === 0) {
+                distributionContainer.innerHTML = '<div class="text-center py-4 text-gray-500">暂无学生数据</div>';
+                return;
+            }
+            
+            // 定义积分区间
+            const ranges = [
+                { min: 0, max: 10, label: '0-10分', color: 'bg-red-100' },
+                { min: 10, max: 30, label: '10-30分', color: 'bg-orange-100' },
+                { min: 30, max: 50, label: '30-50分', color: 'bg-yellow-100' },
+                { min: 50, max: 70, label: '50-70分', color: 'bg-green-100' },
+                { min: 70, max: 90, label: '70-90分', color: 'bg-teal-100' },
+                { min: 90, max: Infinity, label: '90分以上', color: 'bg-blue-100' }
+            ];
+            
+            // 计算每个区间的学生数量
+            ranges.forEach(range => {
+                const count = students.filter(student => {
+                    const points = student.totalPoints || 0;
+                    return points >= range.min && points < range.max;
+                }).length;
+                
+                const percentage = students.length > 0 ? Math.round(count / students.length * 100) : 0;
+                
+                // 创建进度条项
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">${range.label}</span>
+                        <span class="text-gray-800">${count}人 (${percentage}%)</span>
+                    </div>
+                    <div class="w-full bg-neutral-dark rounded-full h-2">
+                        <div class="${range.color} h-2 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                distributionContainer.appendChild(item);
+            });
+        }
+        
+        // 加载仪表盘最近积分记录
+        function loadDashboardRecentLogs() {
+            const recentLogs = document.getElementById('dashboard-recent-logs');
+            const pointLogs = loadData('app_pointLogs');
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            // 清空列表
+            recentLogs.innerHTML = '';
+            
+            if (pointLogs.length === 0) {
+                recentLogs.innerHTML = '<div class="text-center py-4 text-gray-500">暂无积分记录</div>';
+                return;
+            }
+            
+            // 只显示最近的5条记录
+            const latestLogs = [...pointLogs].sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            ).slice(0, 5);
+            
+            // 创建积分记录卡片
+            latestLogs.forEach(log => {
+                const student = students.find(s => s.id === log.studentId);
+                const rule = rules.find(r => r.id === log.pointRuleId);
+                
+                if (!student || !rule) return;
+                
+                const logCard = document.createElement('div');
+                const pointsClass = parseInt(log.points) >= 0 ? 'text-green-500' : 'text-red-500';
+                const pointsSign = parseInt(log.points) >= 0 ? '+' : '';
+                
+                logCard.className = 'bg-white border-b border-neutral-dark last:border-b-0 py-2';
+                logCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-medium text-gray-800">${student.name}</span>
+                            <span class="text-xs text-gray-500 ml-2">${formatDate(log.createdAt)}</span>
+                        </div>
+                        <span class="${pointsClass} font-medium">${pointsSign}${log.points}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">${rule.name}</p>
+                `;
+                recentLogs.appendChild(logCard);
+            });
+        }
+        
+        // 加载仪表盘排行榜
+        function loadDashboardRankings() {
+            const rankList = document.getElementById('dashboard-rank-list');
+            const students = loadData('app_students');
+            
+            // 清空列表
+            rankList.innerHTML = '';
+            
+            if (students.length === 0) {
+                rankList.innerHTML = '<div class="text-center py-4 text-gray-500">暂无学生数据</div>';
+                return;
+            }
+            
+            // 按积分排序
+            const sortedStudents = [...students].sort((a, b) => 
+                (b.totalPoints || 0) - (a.totalPoints || 0)
+            );
+            
+            // 创建表格
+            const table = document.createElement('table');
+            table.className = 'w-full text-sm';
+            
+            // 创建表头
+            const thead = document.createElement('thead');
+            thead.innerHTML = `
+                <tr class="bg-neutral">
+                    <th class="px-2 py-2 text-left">排名</th>
+                    <th class="px-2 py-2 text-left">姓名</th>
+                    <th class="px-2 py-2 text-right">积分</th>
+                </tr>
+            `;
+            
+            // 创建表体
+            const tbody = document.createElement('tbody');
+            tbody.innerHTML = 
+                // 只显示前10名
+                sortedStudents.slice(0, 10).map((student, index) => `
+                    <tr class="border-b border-neutral-dark hover:bg-neutral transition-colors">
+                        <td class="px-2 py-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 ${index < 3 ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'} rounded-full text-sm font-medium">
+                                ${index + 1}
+                            </span>
+                        </td>
+                        <td class="px-2 py-2">${student.name}</td>
+                        <td class="px-2 py-2 text-right font-medium">${student.totalPoints || 0}</td>
+                    </tr>
+                `).join('');
+            
+            // 添加表头和表体到表格
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            
+            // 添加表格到容器
+            rankList.appendChild(table);
+        }
+
         // 延迟初始化特定页面
         function initPageOnDemand(pageId) {
             switch(pageId) {
@@ -1014,13 +1436,6 @@
                 if (!initializedPages['points-page']) {
                     initPageOnDemand('points-page');
                     initializedPages['points-page'] = true;
-                }
-            });
-            document.getElementById('nav-stats').addEventListener('click', () => {
-                showPage('stats-page');
-                if (!initializedPages['stats-page']) {
-                    initPageOnDemand('stats-page');
-                    initializedPages['stats-page'] = true;
                 }
             });
             document.getElementById('nav-rewards').addEventListener('click', () => {
@@ -2861,16 +3276,18 @@
                         <tr class="border-b border-neutral-dark">
                             <th class="px-2 py-2 text-left">排名</th>
                             <th class="px-2 py-2 text-left">姓名</th>
-                            <th class="px-2 py-2 text-left">学号</th>
                             <th class="px-2 py-2 text-right">积分</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${sortedStudents.map((student, index) => `
                             <tr class="border-b border-neutral-dark hover:bg-neutral transition-colors">
-                                <td class="px-2 py-2">${index + 1}</td>
+                                <td class="px-2 py-2 text-center">
+                                    <span class="inline-flex items-center justify-center w-6 h-6 ${index < 3 ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'} rounded-full text-sm font-medium">
+                                        ${index + 1}
+                                    </span>
+                                </td>
                                 <td class="px-2 py-2">${student.name}</td>
-                                <td class="px-2 py-2">${student.studentId}</td>
                                 <td class="px-2 py-2 text-right font-medium">${student.totalPoints || 0}</td>
                             </tr>
                         `).join('')}
