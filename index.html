@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>班级积分管理系统</title>
+    <!-- 添加Material Icons字体 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- 使用Tailwind CDN最新版本 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
@@ -235,10 +237,8 @@
                                 <p class="text-gray-500 text-sm">班级总人数</p>
                                 <h3 id="dashboard-total-students" class="text-2xl font-bold text-gray-800">0</h3>
                             </div>
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
+                            <div class="bg-primary p-3 rounded-full w-14 h-14 flex items-center justify-center shadow-sm">
+                                <i class="material-icons text-white" style="font-size: 32px;">people</i>
                             </div>
                         </div>
                     </div>
@@ -248,10 +248,8 @@
                                 <p class="text-gray-500 text-sm">小组数量</p>
                                 <h3 id="dashboard-total-groups" class="text-2xl font-bold text-gray-800">0</h3>
                             </div>
-                            <div class="bg-secondary bg-opacity-10 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                                </svg>
+                            <div class="bg-secondary p-3 rounded-full w-14 h-14 flex items-center justify-center shadow-sm">
+                                <i class="material-icons text-white" style="font-size: 32px;">groups</i>
                             </div>
                         </div>
                     </div>
@@ -261,10 +259,8 @@
                                 <p class="text-gray-500 text-sm">班级总积分</p>
                                 <h3 id="dashboard-total-points" class="text-2xl font-bold text-gray-800">0</h3>
                             </div>
-                            <div class="bg-accent bg-opacity-10 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                            <div class="bg-accent p-3 rounded-full w-14 h-14 flex items-center justify-center shadow-sm">
+                                <i class="material-icons text-white" style="font-size: 32px;">stars</i>
                             </div>
                         </div>
                     </div>
@@ -274,10 +270,8 @@
                                 <p class="text-gray-500 text-sm">平均积分</p>
                                 <h3 id="dashboard-avg-points" class="text-2xl font-bold text-gray-800">0</h3>
                             </div>
-                            <div class="bg-green-100 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
+                            <div class="bg-green-500 p-3 rounded-full w-14 h-14 flex items-center justify-center shadow-sm">
+                                <i class="material-icons text-white" style="font-size: 32px;">bar_chart</i>
                             </div>
                         </div>
                     </div>
