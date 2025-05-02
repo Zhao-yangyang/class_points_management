@@ -211,7 +211,7 @@
 </head>
 <body class="bg-neutral min-h-screen flex flex-col">
     <!-- 顶部导航栏 -->
-    <header class="bg-white shadow-md">
+    <header class="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <h1 class="text-primary text-xl font-bold cursor-pointer" id="app-title">班级积分管理系统</h1>
             <nav class="flex space-x-1 md:space-x-4">
@@ -224,13 +224,13 @@
     </header>
 
     <!-- 主内容区 -->
-    <main class="flex-grow container mx-auto p-4 mt-4">
+    <main class="flex-grow container mx-auto p-4 mt-16 mb-12">
         <!-- 各模块内容将通过JavaScript动态加载 -->
         <div id="content-container">
             <!-- 默认显示欢迎页面/仪表盘 -->
-            <div id="welcome-page" class="space-y-6">
-                <!-- 顶部卡片统计 -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div id="welcome-page" class="py-2 max-h-[calc(100vh-9rem)] overflow-y-auto">
+                <!-- 使用间隔把内容分开 -->
+                <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-primary">
                         <div class="flex justify-between items-center">
                             <div>
@@ -278,50 +278,50 @@
                 </div>
                 
                 <!-- 中间部分 -->
-                <div class="flex flex-col md:flex-row gap-6">
+                <div class="mb-4 flex flex-col md:flex-row gap-4">
                     <!-- 左侧：积分趋势图 -->
                     <div class="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-2">
                             <h2 class="text-lg font-medium text-gray-800">积分趋势</h2>
                             <span id="trend-details" class="text-sm text-primary hover:underline cursor-pointer">查看详情</span>
                         </div>
-                        <div class="h-64">
+                        <div class="h-48">
                             <canvas id="dashboard-trend-chart"></canvas>
                         </div>
                     </div>
                     
                     <!-- 右侧：积分区间分布 -->
                     <div class="w-full md:w-1/3 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-2">
                             <h2 class="text-lg font-medium text-gray-800">积分区间分布</h2>
                             <span id="distribution-details" class="text-sm text-primary hover:underline cursor-pointer">查看详情</span>
                         </div>
-                        <div class="space-y-3" id="dashboard-point-distribution">
+                        <div class="space-y-2 max-h-48 overflow-y-auto" id="dashboard-point-distribution">
                             <!-- 积分区间将通过JavaScript动态生成 -->
                         </div>
                     </div>
                 </div>
                 
                 <!-- 底部部分 -->
-                <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-col md:flex-row gap-4">
                     <!-- 最近积分记录 -->
                     <div class="w-full md:w-1/2 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-2">
                             <h2 class="text-lg font-medium text-gray-800">最近积分记录</h2>
                             <button id="dashboard-more-logs" class="text-sm text-primary hover:underline">查看全部</button>
                         </div>
-                        <div id="dashboard-recent-logs" class="max-h-[300px] overflow-y-auto">
+                        <div id="dashboard-recent-logs" class="max-h-[200px] overflow-y-auto">
                             <!-- 积分记录将通过JavaScript动态生成 -->
                         </div>
                     </div>
                     
                     <!-- 积分排行榜 -->
                     <div class="w-full md:w-1/2 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-2">
                             <h2 class="text-lg font-medium text-gray-800">积分排行榜</h2>
                             <!-- 移除"查看全部"按钮 -->
                         </div>
-                        <div id="dashboard-rank-list" class="max-h-[300px] overflow-y-auto">
+                        <div id="dashboard-rank-list" class="max-h-[200px] overflow-y-auto">
                             <!-- 排行榜将通过JavaScript动态生成 -->
                         </div>
                     </div>
@@ -347,7 +347,7 @@
                         </div>
                         
                         <!-- 学生列表 -->
-                        <div id="student-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto">
+                        <div id="student-list" class="grid grid-cols-1 md:grid-cols-3 gap-2 py-3 px-1">
                             <!-- 学生卡片将通过JavaScript动态生成 -->
                         </div>
                     </div>
@@ -662,7 +662,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
-                                        <span class="text-gray-600">班级总人数</span>
+                                    <span class="text-gray-600">班级总人数</span>
                                     </div>
                                     <span id="stats-total-students" class="font-medium text-gray-800">0</span>
                                 </div>
@@ -671,7 +671,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                                         </svg>
-                                        <span class="text-gray-600">小组数量</span>
+                                    <span class="text-gray-600">小组数量</span>
                                     </div>
                                     <span id="stats-total-groups" class="font-medium text-gray-800">0</span>
                                 </div>
@@ -680,7 +680,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span class="text-gray-600">总积分</span>
+                                    <span class="text-gray-600">总积分</span>
                                     </div>
                                     <span id="stats-total-points" class="font-medium text-gray-800">0</span>
                                 </div>
@@ -689,7 +689,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                         </svg>
-                                        <span class="text-gray-600">平均积分</span>
+                                    <span class="text-gray-600">平均积分</span>
                                     </div>
                                     <span id="stats-avg-points" class="font-medium text-gray-800">0</span>
                                 </div>
@@ -877,19 +877,29 @@
                                 </div>
                                 <button id="backup-data-btn" class="btn btn-primary">
                                     备份数据
-                            </button>
-                        </div>
-                        
+                                </button>
+                            </div>
+                            
                             <div class="flex justify-between items-center p-4 border border-neutral-dark rounded-lg">
                                 <div>
                                     <h3 class="font-medium text-gray-800">恢复数据</h3>
                                     <p class="text-sm text-gray-600">从备份文件恢复数据</p>
-                        </div>
+                                </div>
                                 <button id="restore-data-btn" class="btn btn-primary">
                                     恢复数据
                                 </button>
-                    </div>
-                    
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-neutral-dark rounded-lg">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">优化存储</h3>
+                                    <p class="text-sm text-gray-600">优化数据存储格式，节省空间</p>
+                                </div>
+                                <button id="optimize-storage-btn" class="btn btn-secondary">
+                                    优化存储
+                                </button>
+                            </div>
+                            
                             <div class="flex justify-between items-center p-4 border border-neutral-dark rounded-lg">
                                 <div>
                                     <h3 class="font-medium text-gray-800">清除所有数据</h3>
@@ -900,8 +910,80 @@
                                 </button>
                             </div>
                         </div>
-                        </div>
-                        
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                        <h2 class="text-lg font-medium text-gray-800 mb-4">系统设置</h2>
+                        <form id="settings-form" class="space-y-4">
+                            <!-- 存储使用情况 -->
+                            <div id="storage-usage-info" class="p-4 bg-neutral rounded-lg">
+                                <!-- 将通过JavaScript动态生成 -->
+                            </div>
+                            
+                            <!-- 备份提醒设置 -->
+                            <div class="p-4 border border-neutral-dark rounded-lg">
+                                <h3 class="font-medium text-gray-800 mb-2">备份提醒</h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="backup-reminder-enabled" class="mr-2">
+                                        <label for="backup-reminder-enabled" class="text-sm text-gray-700">启用备份提醒</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <label for="backup-reminder-days" class="text-sm text-gray-700 mr-2">提醒间隔:</label>
+                                        <input type="number" id="backup-reminder-days" min="1" max="30" 
+                                            class="w-16 px-2 py-1 border border-neutral-dark rounded focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <span class="text-sm text-gray-700 ml-2">天</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 存储优化设置 -->
+                            <div class="p-4 border border-neutral-dark rounded-lg">
+                                <h3 class="font-medium text-gray-800 mb-2">存储优化</h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="storage-optimization-enabled" class="mr-2">
+                                        <label for="storage-optimization-enabled" class="text-sm text-gray-700">启用自动存储优化</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <label for="storage-optimization-threshold" class="text-sm text-gray-700 mr-2">优化阈值:</label>
+                                        <input type="number" id="storage-optimization-threshold" min="50" max="90" 
+                                            class="w-16 px-2 py-1 border border-neutral-dark rounded focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <span class="text-sm text-gray-700 ml-2">%</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">当存储使用超过阈值时，系统将自动进行优化</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 自动备份设置 -->
+                            <div class="p-4 border border-neutral-dark rounded-lg">
+                                <h3 class="font-medium text-gray-800 mb-2">自动备份</h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="auto-backup-enabled" class="mr-2">
+                                        <label for="auto-backup-enabled" class="text-sm text-gray-700">启用自动内部备份</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <label for="auto-backup-interval" class="text-sm text-gray-700 mr-2">备份间隔:</label>
+                                        <input type="number" id="auto-backup-interval" min="1" max="30" 
+                                            class="w-16 px-2 py-1 border border-neutral-dark rounded focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <span class="text-sm text-gray-700 ml-2">天</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <label for="auto-backup-keep" class="text-sm text-gray-700 mr-2">保留备份数:</label>
+                                        <input type="number" id="auto-backup-keep" min="1" max="5" 
+                                            class="w-16 px-2 py-1 border border-neutral-dark rounded focus:outline-none focus:ring-2 focus:ring-primary">
+                                    </div>
+                                    <p class="text-xs text-gray-500">系统将自动在本地创建内部备份，无需手动下载</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </div>
+                        </form>
+                    </div>
+                    
                     <div class="bg-white rounded-xl shadow-md p-6 mb-4">
                         <h2 class="text-lg font-medium text-gray-800 mb-4">关于系统</h2>
                         <div class="space-y-2 text-sm text-gray-600">
@@ -916,9 +998,26 @@
                 <div id="restore-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
                     <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
                         <h3 class="text-lg font-medium text-gray-800 mb-4">恢复数据</h3>
-                        <p class="text-sm text-gray-600 mb-4">请选择备份文件（.json格式）</p>
-                        <input type="file" id="restore-file" accept=".json" 
-                            class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        
+                        <div class="mb-6">
+                            <h4 class="text-md font-medium text-gray-700 mb-2">从备份文件恢复</h4>
+                            <p class="text-sm text-gray-600 mb-4">请选择备份文件（.json格式）</p>
+                            <input type="file" id="restore-file" accept=".json" 
+                                class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        
+                        <div class="border-t border-neutral-dark pt-4 mb-6">
+                            <h4 class="text-md font-medium text-gray-700 mb-2">从自动内部备份恢复</h4>
+                            <div id="internal-backup-info" class="text-sm text-gray-600 mb-4">
+                                <!-- 内部备份信息将通过JavaScript动态加载 -->
+                                检查中...
+                            </div>
+                            <button type="button" id="restore-internal-btn" 
+                                class="btn btn-secondary w-full">
+                                从内部备份恢复
+                            </button>
+                        </div>
+                        
                         <div class="flex justify-end space-x-2 mt-6">
                             <button type="button" id="restore-modal-cancel" 
                                 class="btn btn-outline">
@@ -926,7 +1025,7 @@
                             </button>
                             <button type="button" id="restore-modal-submit" 
                                 class="btn btn-primary">
-                                恢复
+                                从文件恢复
                             </button>
                         </div>
                     </div>
@@ -936,7 +1035,7 @@
     </main>
 
     <!-- 底部状态栏 -->
-    <footer class="bg-white shadow-md mt-auto">
+    <footer class="bg-white shadow-md fixed bottom-0 left-0 right-0 z-10">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center text-sm text-gray-500">
             <div>班级积分管理系统 V1.0</div>
             <div id="last-backup-info">上次备份时间: 未备份</div>
@@ -969,6 +1068,132 @@
                 return defaultValue;
             }
         }
+        
+        // 存储优化函数 - 按时间分割积分记录
+        function optimizePointLogsStorage() {
+            // 获取所有积分记录
+            const allPointLogs = loadData('app_pointLogs', []);
+            
+            // 如果记录数小于100，不需要优化
+            if (allPointLogs.length < 100) {
+                return;
+            }
+            
+            console.log(`开始优化积分记录存储，当前记录数: ${allPointLogs.length}`);
+            
+            // 按年月分组
+            const groupedLogs = {};
+            
+            allPointLogs.forEach(log => {
+                // 提取年月（例如：2024-05）
+                const date = new Date(log.createdAt);
+                const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!groupedLogs[yearMonth]) {
+                    groupedLogs[yearMonth] = [];
+                }
+                
+                groupedLogs[yearMonth].push(log);
+            });
+            
+            // 清除主存储
+            localStorage.removeItem('app_pointLogs');
+            
+            // 保存最近3个月的数据到主存储
+            const now = new Date();
+            const recentMonths = [];
+            
+            for (let i = 0; i < 3; i++) {
+                const month = now.getMonth() - i;
+                const year = now.getFullYear() + Math.floor(month / 12);
+                const adjustedMonth = ((month % 12) + 12) % 12; // 处理负月份
+                const yearMonth = `${year}-${String(adjustedMonth + 1).padStart(2, '0')}`;
+                recentMonths.push(yearMonth);
+            }
+            
+            // 收集最近几个月的记录
+            const recentLogs = [];
+            recentMonths.forEach(yearMonth => {
+                if (groupedLogs[yearMonth]) {
+                    recentLogs.push(...groupedLogs[yearMonth]);
+                    delete groupedLogs[yearMonth]; // 从分组中移除，避免重复存储
+                }
+            });
+            
+            // 保存最近几个月的数据到主键
+            saveData('app_pointLogs', recentLogs);
+            
+            // 保存其他月份数据到单独的键
+            Object.keys(groupedLogs).forEach(yearMonth => {
+                if (groupedLogs[yearMonth].length > 0) {
+                    saveData(`app_pointLogs_${yearMonth}`, groupedLogs[yearMonth]);
+                    console.log(`已保存 ${yearMonth} 的 ${groupedLogs[yearMonth].length} 条记录`);
+                }
+            });
+            
+            // 更新存储信息
+            saveData('app_storage_info', {
+                lastOptimized: new Date().toISOString(),
+                archivedMonths: Object.keys(groupedLogs),
+                mainRecords: recentLogs.length,
+                totalRecords: allPointLogs.length
+            });
+            
+            console.log(`存储优化完成，主存储记录数: ${recentLogs.length}，归档月份数: ${Object.keys(groupedLogs).length}`);
+        }
+
+        // 加载所有积分记录（包括归档数据）
+        function loadAllPointLogs() {
+            // 先获取主存储数据
+            const mainLogs = loadData('app_pointLogs', []);
+            let allLogs = [...mainLogs];
+            
+            // 获取存储信息
+            const storageInfo = loadData('app_storage_info', {});
+            const archivedMonths = storageInfo.archivedMonths || [];
+            
+            // 加载所有归档月份数据
+            archivedMonths.forEach(yearMonth => {
+                const monthLogs = loadData(`app_pointLogs_${yearMonth}`, []);
+                allLogs = allLogs.concat(monthLogs);
+            });
+            
+            // 按时间排序
+            allLogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            return allLogs;
+        }
+        
+        // 监控localStorage使用情况
+        function getLocalStorageUsage() {
+            let totalSize = 0;
+            let details = {};
+            
+            // 遍历所有localStorage键
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                const size = (key.length + value.length) * 2; // 以字节为单位（UTF-16编码）
+                
+                totalSize += size;
+                
+                // 只记录应用相关的键
+                if (key.startsWith('app_')) {
+                    details[key] = {
+                        size: Math.round(size / 1024 * 100) / 100, // 转换为KB并保留两位小数
+                        records: key.includes('pointLogs') ? JSON.parse(value).length : undefined
+                    };
+                }
+            }
+            
+            return {
+                totalSize: Math.round(totalSize / 1024 * 100) / 100, // KB
+                totalMB: Math.round(totalSize / 1024 / 1024 * 100) / 100, // MB
+                details: details,
+                percentUsed: Math.round(totalSize / (5 * 1024 * 1024) * 10000) / 100, // 假设限制为5MB
+                timestamp: new Date().toISOString()
+            };
+        }
 
         // 生成唯一ID
         function generateId() {
@@ -983,14 +1208,18 @@
 
         // 备份所有数据
         function backupAllData() {
+            // 先获取完整积分记录（包括归档数据）
+            const allPointLogs = loadAllPointLogs();
+            
             const allData = {
                 students: loadData('app_students'),
                 groups: loadData('app_groups'),
                 pointRules: loadData('app_pointRules'),
-                pointLogs: loadData('app_pointLogs'),
+                pointLogs: allPointLogs, // 使用合并后的完整积分记录
                 rewards: loadData('app_rewards'),
                 exchanges: loadData('app_exchanges'),
                 settings: loadData('app_settings'),
+                storageInfo: loadData('app_storage_info'),
                 timestamp: new Date().toISOString()
             };
             
@@ -1010,29 +1239,66 @@
         // 恢复数据
         function restoreData(jsonData) {
             try {
+                // 添加错误调试信息
+                console.log("开始解析恢复数据:", jsonData.substring(0, 100) + "...");
+                
                 const data = JSON.parse(jsonData);
                 
-                if (data.students) saveData('app_students', data.students);
-                if (data.groups) saveData('app_groups', data.groups);
-                if (data.pointRules) saveData('app_pointRules', data.pointRules);
-                if (data.pointLogs) saveData('app_pointLogs', data.pointLogs);
-                if (data.rewards) saveData('app_rewards', data.rewards);
-                if (data.exchanges) saveData('app_exchanges', data.exchanges);
-                if (data.settings) saveData('app_settings', data.settings);
+                // 验证数据结构
+                if (!data || typeof data !== 'object') {
+                    throw new Error('数据格式不正确：不是有效的对象');
+                }
+                
+                // 记录恢复前数据，方便调试
+                const beforeStudentsCount = loadData('app_students').length;
+                
+                // 保存数据前进行简单验证
+                if (data.students && Array.isArray(data.students)) saveData('app_students', data.students);
+                if (data.groups && Array.isArray(data.groups)) saveData('app_groups', data.groups);
+                if (data.pointRules && Array.isArray(data.pointRules)) saveData('app_pointRules', data.pointRules);
+                if (data.pointLogs && Array.isArray(data.pointLogs)) saveData('app_pointLogs', data.pointLogs);
+                if (data.rewards && Array.isArray(data.rewards)) saveData('app_rewards', data.rewards);
+                if (data.exchanges && Array.isArray(data.exchanges)) saveData('app_exchanges', data.exchanges);
+                if (data.settings && typeof data.settings === 'object') saveData('app_settings', data.settings);
+                if (data.storageInfo && typeof data.storageInfo === 'object') saveData('app_storage_info', data.storageInfo);
+                
+                // 清除所有旧的分片存储
+                clearArchivedPointLogs();
+                
+                // 如果数据量大，进行存储优化
+                if (data.pointLogs && data.pointLogs.length > 100) {
+                    optimizePointLogsStorage();
+                }
+                
+                // 记录恢复后数据，方便调试
+                const afterStudentsCount = loadData('app_students').length;
+                console.log(`恢复数据完成：学生数从 ${beforeStudentsCount} 变为 ${afterStudentsCount}`);
                 
                 alert('数据恢复成功！');
                 saveData('app_lastBackup', new Date().toISOString());
                 updateLastBackupInfo();
                 
-                // 刷新所有页面数据
+                // 添加页面刷新逻辑
                 initializePages();
                 
                 return true;
             } catch (error) {
                 console.error('恢复数据失败:', error);
-                alert('恢复数据失败，文件格式可能不正确');
+                alert(`恢复数据失败: ${error.message}`);
                 return false;
             }
+        }
+        
+        // 清除所有归档积分记录
+        function clearArchivedPointLogs() {
+            const storageInfo = loadData('app_storage_info', {});
+            const archivedMonths = storageInfo.archivedMonths || [];
+            
+            archivedMonths.forEach(yearMonth => {
+                localStorage.removeItem(`app_pointLogs_${yearMonth}`);
+            });
+            
+            console.log(`已清除 ${archivedMonths.length} 个月的归档积分记录`);
         }
 
         // 更新上次备份信息
@@ -1384,7 +1650,7 @@
             // 添加表格到容器
             rankList.appendChild(table);
         }
-
+        
         // 延迟初始化特定页面
         function initPageOnDemand(pageId) {
             switch(pageId) {
@@ -1449,6 +1715,9 @@
             
             // 更新上次备份信息
             updateLastBackupInfo();
+            
+            // 进行备份状态检查
+            setTimeout(checkBackupStatus, 1000); // 延迟1秒检查，避免刚加载就弹窗
             
             // 初始化页面
             initializePages();
@@ -2077,14 +2346,14 @@
                         <div class="flex items-center">
                             <h3 class="text-sm font-medium text-gray-800">${student.name}</h3>
                             <span class="text-xs text-gray-500 ml-2">${student.studentId}</span>
-                        </div>
+                    </div>
                         <span class="bg-primary text-white px-2 py-0.5 rounded-full text-xs">${student.totalPoints || 0}分</span>
                     </div>
                     <div class="flex justify-between items-center mt-1 text-xs">
                         <span class="text-gray-400">${groupName} | ${student.gender}</span>
-                        <div class="flex space-x-2">
-                            <button class="edit-student-btn btn btn-primary btn-sm" data-id="${student.id}">编辑</button>
-                            <button class="delete-student-btn btn btn-danger btn-sm" data-id="${student.id}">删除</button>
+                        <div class="flex space-x-1">
+                            <button class="edit-student-btn text-xs px-2 py-0.5 bg-primary text-white rounded hover:bg-primary-dark" data-id="${student.id}">编辑</button>
+                            <button class="delete-student-btn text-xs px-2 py-0.5 bg-red-500 text-white rounded hover:bg-red-600" data-id="${student.id}">删除</button>
                         </div>
                     </div>
                 `;
@@ -3442,6 +3711,8 @@
             // 恢复数据按钮
             document.getElementById('restore-data-btn').addEventListener('click', () => {
                 document.getElementById('restore-modal').classList.remove('hidden');
+                // 检查自动内部备份状态并更新信息
+                updateInternalBackupInfo();
             });
             
             // 清除数据按钮
@@ -3456,7 +3727,7 @@
                 document.getElementById('restore-modal').classList.add('hidden');
             });
             
-            // 恢复文件提交
+            // 从文件恢复按钮
             document.getElementById('restore-modal-submit').addEventListener('click', () => {
                 const fileInput = document.getElementById('restore-file');
                 if (fileInput.files.length === 0) {
@@ -3468,18 +3739,208 @@
                 const reader = new FileReader();
                 
                 reader.onload = (e) => {
-                    const jsonData = e.target.result;
-                    restoreData(jsonData);
-                    document.getElementById('restore-modal').classList.add('hidden');
-                    fileInput.value = '';
+                    try {
+                        const jsonData = e.target.result;
+                        
+                        // 检查文件内容是否为空
+                        if (!jsonData.trim()) {
+                            alert('备份文件内容为空');
+                            return;
+                        }
+                        
+                        // 尝试验证JSON格式
+                        try {
+                            const testParse = JSON.parse(jsonData);
+                            // 检查基本数据结构
+                            if (!testParse || typeof testParse !== 'object') {
+                                alert('备份文件格式不正确：不是有效的对象结构');
+                                return;
+                            }
+                            
+                            // 检查是否包含基本数据结构
+                            const requiredStructures = ['students', 'groups', 'pointRules', 'pointLogs'];
+                            const missingStructures = requiredStructures.filter(key => !testParse[key]);
+                            
+                            if (missingStructures.length > 0) {
+                                console.warn(`警告：备份文件缺少以下结构: ${missingStructures.join(', ')}`);
+                            }
+                        } catch (parseError) {
+                            alert(`备份文件不是有效的JSON格式: ${parseError.message}`);
+                            console.error('JSON解析错误:', parseError);
+                            return;
+                        }
+                        
+                        // 执行恢复操作
+                        const result = restoreData(jsonData);
+                        if (result) {
+                            document.getElementById('restore-modal').classList.add('hidden');
+                            fileInput.value = '';
+                        }
+                    } catch (error) {
+                        alert(`文件处理出错：${error.message}`);
+                        console.error('文件处理错误:', error);
+                    }
                 };
                 
                 reader.onerror = () => {
-                    alert('读取文件失败');
+                    alert('读取文件失败，请检查文件格式或大小');
+                    console.error('文件读取错误:', reader.error);
                 };
                 
                 reader.readAsText(file);
             });
+            
+            // 从内部备份恢复按钮
+            document.getElementById('restore-internal-btn').addEventListener('click', () => {
+                if (confirm('确定要从内部备份恢复数据吗？这将覆盖当前的所有数据。')) {
+                    const result = restoreFromInternalBackup();
+                    if (result) {
+                        document.getElementById('restore-modal').classList.add('hidden');
+                    }
+                }
+            });
+
+            // 添加运行存储优化功能
+            document.getElementById('optimize-storage-btn').addEventListener('click', () => {
+                optimizePointLogsStorage();
+                alert('存储优化完成');
+                
+                // 显示存储信息
+                const storageInfo = loadData('app_storage_info', {});
+                const usage = getLocalStorageUsage();
+                
+                alert(`存储优化完成！\n\n` +
+                      `主存储记录数: ${storageInfo.mainRecords || 0}\n` +
+                      `归档月份数: ${(storageInfo.archivedMonths || []).length}\n` +
+                      `总记录数: ${storageInfo.totalRecords || 0}\n` +
+                      `当前存储使用: ${usage.totalMB} MB (${usage.percentUsed}%)`);
+            });
+            
+            // 更新设置表单
+            updateSettingsForm();
+        }
+        
+        // 更新设置表单
+        function updateSettingsForm() {
+            // 获取当前设置
+            const settings = loadData('app_settings', {
+                backupReminder: {
+                    enabled: true,
+                    dayInterval: 7
+                },
+                storageOptimization: {
+                    enabled: true,
+                    threshold: 70
+                },
+                autoBackup: {
+                    enabled: true,
+                    intervalDays: 3,
+                    keepOnly: 1
+                }
+            });
+            
+            // 获取存储使用情况
+            const usage = getLocalStorageUsage();
+            
+            // 更新存储使用情况显示
+            const storageUsageElement = document.getElementById('storage-usage-info');
+            if (storageUsageElement) {
+                storageUsageElement.innerHTML = `
+                    <div class="font-medium">存储空间使用情况</div>
+                    <div class="mt-1 text-sm">
+                        <div class="flex justify-between">
+                            <span>已使用</span>
+                            <span>${usage.totalMB} MB (${usage.percentUsed}%)</span>
+                        </div>
+                        <div class="w-full bg-neutral-dark rounded-full h-2 mt-1">
+                            <div class="bg-primary h-2 rounded-full" style="width: ${Math.min(usage.percentUsed, 100)}%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500">浏览器通常限制每个域名的存储为5MB左右</div>
+                `;
+            }
+            
+            // 更新设置表单值
+            if (document.getElementById('backup-reminder-enabled')) {
+                document.getElementById('backup-reminder-enabled').checked = settings.backupReminder.enabled;
+            }
+            
+            if (document.getElementById('backup-reminder-days')) {
+                document.getElementById('backup-reminder-days').value = settings.backupReminder.dayInterval;
+            }
+            
+            if (document.getElementById('storage-optimization-enabled')) {
+                document.getElementById('storage-optimization-enabled').checked = settings.storageOptimization.enabled;
+            }
+            
+            if (document.getElementById('storage-optimization-threshold')) {
+                document.getElementById('storage-optimization-threshold').value = settings.storageOptimization.threshold;
+            }
+            
+            // 更新自动备份设置
+            if (document.getElementById('auto-backup-enabled')) {
+                document.getElementById('auto-backup-enabled').checked = settings.autoBackup.enabled;
+            }
+            
+            if (document.getElementById('auto-backup-interval')) {
+                document.getElementById('auto-backup-interval').value = settings.autoBackup.intervalDays;
+            }
+            
+            if (document.getElementById('auto-backup-keep')) {
+                document.getElementById('auto-backup-keep').value = settings.autoBackup.keepOnly;
+            }
+            
+            // 绑定设置保存事件
+            document.getElementById('settings-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveSettings();
+            });
+        }
+        
+        // 更新内部备份信息
+        function updateInternalBackupInfo() {
+            const infoElement = document.getElementById('internal-backup-info');
+            const lastInternalBackup = loadData('app_lastInternalBackup', null);
+            const restoreButton = document.getElementById('restore-internal-btn');
+            
+            if (!lastInternalBackup) {
+                infoElement.textContent = '没有可用的自动内部备份。';
+                restoreButton.disabled = true;
+                restoreButton.classList.add('opacity-50');
+                return;
+            }
+            
+            try {
+                // 检查内部备份是否存在
+                const backupData = localStorage.getItem('app_internal_backup');
+                if (!backupData) {
+                    infoElement.textContent = '找不到内部备份数据。';
+                    restoreButton.disabled = true;
+                    restoreButton.classList.add('opacity-50');
+                    return;
+                }
+                
+                // 解析备份数据以获取更多信息
+                const backup = JSON.parse(backupData);
+                const backupDate = formatDate(backup.timestamp);
+                const studentsCount = backup.students ? backup.students.length : 0;
+                const pointLogsCount = backup.pointLogs ? backup.pointLogs.length : 0;
+                
+                infoElement.innerHTML = `
+                    <div>最近内部备份: ${backupDate}</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        包含 ${studentsCount} 名学生, ${pointLogsCount} 条积分记录
+                    </div>
+                `;
+                
+                restoreButton.disabled = false;
+                restoreButton.classList.remove('opacity-50');
+            } catch (error) {
+                console.error('检查内部备份出错:', error);
+                infoElement.textContent = '检查内部备份时出错: ' + error.message;
+                restoreButton.disabled = true;
+                restoreButton.classList.add('opacity-50');
+            }
         }
 
         // 清除所有数据
@@ -3500,6 +3961,218 @@
             initializePages();
             
             alert('所有数据已清除');
+        }
+
+        // 检查备份状态并提醒
+        function checkBackupStatus() {
+            const lastBackup = loadData('app_lastBackup', null);
+            const lastInternalBackup = loadData('app_lastInternalBackup', null);
+            const storageUsage = getLocalStorageUsage();
+            
+            // 获取备份设置
+            const settings = loadData('app_settings', {
+                backupReminder: {
+                    enabled: true,
+                    dayInterval: 7
+                },
+                storageOptimization: {
+                    enabled: true,
+                    threshold: 70 // 百分比
+                },
+                autoBackup: {
+                    enabled: true,
+                    intervalDays: 3,
+                    keepOnly: 1
+                }
+            });
+            
+            // 执行自动备份检查
+            const autoBackupPerformed = checkAndAutoBackup();
+            
+            let needsBackup = false;
+            let message = '';
+            
+            // 检查上次手动备份时间
+            if (lastBackup) {
+                const lastBackupDate = new Date(lastBackup);
+                const daysSinceLastBackup = Math.floor((new Date() - lastBackupDate) / (1000 * 60 * 60 * 24));
+                
+                if (settings.backupReminder.enabled && daysSinceLastBackup >= settings.backupReminder.dayInterval) {
+                    needsBackup = true;
+                    message = `上次手动备份已经过去了 ${daysSinceLastBackup} 天，建议进行数据备份。`;
+                }
+            } else {
+                // 从未手动备份过
+                if (settings.backupReminder.enabled) {
+                    needsBackup = true;
+                    message = '您尚未进行手动备份，建议备份数据以防丢失。';
+                }
+            }
+            
+            // 检查存储占用情况
+            if (settings.storageOptimization.enabled && storageUsage.percentUsed > settings.storageOptimization.threshold) {
+                if (message) {
+                    message += '\n\n';
+                }
+                message += `存储空间已使用 ${storageUsage.percentUsed}%，建议备份数据并考虑清理旧数据。`;
+                needsBackup = true;
+            }
+            
+            // 添加自动备份信息
+            if (lastInternalBackup && needsBackup) {
+                const lastAutoBackupDate = new Date(lastInternalBackup);
+                const formattedDate = formatDate(lastInternalBackup);
+                
+                message += `\n\n系统已在 ${formattedDate} 自动创建了内部备份。`;
+                
+                if (autoBackupPerformed) {
+                    message += '\n刚刚已执行新的自动备份。';
+                }
+            }
+            
+            // 如果需要备份，显示提醒
+            if (needsBackup) {
+                const doBackup = confirm(message + '\n\n是否现在进行手动备份（下载备份文件）？');
+                if (doBackup) {
+                    backupAllData();
+                }
+            }
+            
+            // 如果需要优化存储，自动执行
+            if (settings.storageOptimization.enabled) {
+                const pointLogs = loadData('app_pointLogs', []);
+                if (pointLogs.length > 100) {
+                    optimizePointLogsStorage();
+                }
+            }
+            
+            return needsBackup;
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                backupReminder: {
+                    enabled: document.getElementById('backup-reminder-enabled').checked,
+                    dayInterval: parseInt(document.getElementById('backup-reminder-days').value) || 7
+                },
+                storageOptimization: {
+                    enabled: document.getElementById('storage-optimization-enabled').checked,
+                    threshold: parseInt(document.getElementById('storage-optimization-threshold').value) || 70
+                },
+                autoBackup: {
+                    enabled: document.getElementById('auto-backup-enabled').checked,
+                    intervalDays: parseInt(document.getElementById('auto-backup-interval').value) || 3,
+                    keepOnly: parseInt(document.getElementById('auto-backup-keep').value) || 1
+                }
+            };
+            
+            // 保存设置
+            saveData('app_settings', settings);
+            
+            alert('设置已保存');
+        }
+
+        // 执行自动内部备份
+        function createInternalBackup() {
+            // 获取完整积分记录（包括归档数据）
+            const allPointLogs = loadAllPointLogs();
+            
+            // 创建完整备份数据
+            const backupData = {
+                students: loadData('app_students'),
+                groups: loadData('app_groups'),
+                pointRules: loadData('app_pointRules'),
+                pointLogs: allPointLogs,
+                rewards: loadData('app_rewards'),
+                exchanges: loadData('app_exchanges'),
+                settings: loadData('app_settings'),
+                storageInfo: loadData('app_storage_info'),
+                timestamp: new Date().toISOString()
+            };
+            
+            // 保存到内部备份键
+            try {
+                localStorage.setItem('app_internal_backup', JSON.stringify(backupData));
+                saveData('app_lastInternalBackup', new Date().toISOString());
+                console.log('自动内部备份已完成', new Date().toISOString());
+                return true;
+            } catch (error) {
+                console.error('自动内部备份失败:', error);
+                // 如果失败，尝试运行存储优化然后重试
+                try {
+                    optimizePointLogsStorage();
+                    localStorage.setItem('app_internal_backup', JSON.stringify(backupData));
+                    saveData('app_lastInternalBackup', new Date().toISOString());
+                    console.log('优化后自动内部备份已完成', new Date().toISOString());
+                    return true;
+                } catch (retryError) {
+                    console.error('优化后自动内部备份仍然失败:', retryError);
+                    return false;
+                }
+            }
+        }
+        
+        // 从内部备份恢复
+        function restoreFromInternalBackup() {
+            try {
+                const backupData = localStorage.getItem('app_internal_backup');
+                if (!backupData) {
+                    alert('没有可用的内部备份');
+                    return false;
+                }
+                
+                // 使用restoreData函数恢复数据
+                return restoreData(backupData);
+            } catch (error) {
+                console.error('从内部备份恢复失败:', error);
+                alert('从内部备份恢复失败: ' + error.message);
+                return false;
+            }
+        }
+        
+        // 检查并执行自动备份
+        function checkAndAutoBackup() {
+            // 获取备份设置
+            const settings = loadData('app_settings', {
+                autoBackup: {
+                    enabled: true,
+                    intervalDays: 3, // 默认3天
+                    keepOnly: 1  // 默认只保留最新的1个备份
+                }
+            });
+            
+            // 如果自动备份未启用，直接返回
+            if (!settings.autoBackup || !settings.autoBackup.enabled) {
+                return false;
+            }
+            
+            // 获取上次自动备份时间
+            const lastInternalBackup = loadData('app_lastInternalBackup', null);
+            
+            // 检查是否需要执行自动备份
+            let needsBackup = false;
+            
+            if (!lastInternalBackup) {
+                // 从未备份过，需要备份
+                needsBackup = true;
+            } else {
+                // 检查是否已超过备份间隔
+                const lastBackupDate = new Date(lastInternalBackup);
+                const daysSinceLastBackup = Math.floor((new Date() - lastBackupDate) / (1000 * 60 * 60 * 24));
+                
+                if (daysSinceLastBackup >= (settings.autoBackup.intervalDays || 3)) {
+                    needsBackup = true;
+                }
+            }
+            
+            // 如果需要备份，执行自动备份
+            if (needsBackup) {
+                console.log('执行自动内部备份...');
+                return createInternalBackup();
+            }
+            
+            return false;
         }
     </script>
 </body>
