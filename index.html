@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级积分管理系统</title>
+    <!-- 使用Tailwind CDN最新版本 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-primary: #FF85A2;      /* 温柔粉色为主色调 */
+        --color-secondary: #7EB2DD;    /* 淡蓝色为辅助色 */
+        --color-accent: #B8E0D2;       /* 薄荷绿为强调色 */
+        --color-neutral: #F8F9FA;      /* 浅灰色作为背景 */
+        --color-neutral-dark: #DEE2E6;  /* 深一点的灰色作为分隔 */
+        --color-primary-dark: #E06B87;  /* 主色调的深色版本 */
+        --color-secondary-dark: #6799C0;  /* 辅助色的深色版本 */
+        --color-accent-dark: #92C7B6;  /* 强调色的深色版本 */
+      }
+      
+      .bg-primary {
+        background-color: theme(--color-primary);
+      }
+      .bg-secondary {
+        background-color: theme(--color-secondary);
+      }
+      .bg-accent {
+        background-color: theme(--color-accent);
+      }
+      .bg-neutral {
+        background-color: theme(--color-neutral);
+      }
+      .bg-neutral-dark {
+        background-color: theme(--color-neutral-dark);
+      }
+      
+      .text-primary {
+        color: theme(--color-primary);
+      }
+      .text-secondary {
+        color: theme(--color-secondary);
+      }
+      .text-accent {
+        color: theme(--color-accent);
+      }
+      
+      .border-neutral-dark {
+        border-color: theme(--color-neutral-dark);
+      }
+      
+      .hover\:bg-primary:hover {
+        background-color: theme(--color-primary);
+      }
+      .hover\:bg-secondary:hover {
+        background-color: theme(--color-secondary);
+      }
+      .hover\:bg-accent:hover {
+        background-color: theme(--color-accent);
+      }
+      .hover\:bg-primary-dark:hover {
+        background-color: theme(--color-primary-dark);
+      }
+      .hover\:bg-secondary-dark:hover {
+        background-color: theme(--color-secondary-dark);
+      }
+      .hover\:bg-accent-dark:hover {
+        background-color: theme(--color-accent-dark);
+      }
+      
+      .focus\:ring-primary:focus {
+        --tw-ring-color: theme(--color-primary);
+      }
+      .focus\:ring-secondary:focus {
+        --tw-ring-color: theme(--color-secondary);
+      }
+      
+      /* 按钮统一样式类 */
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition-property: all;
+        transition-duration: 300ms;
+        font-weight: 500;
+        font-size: 0.875rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+      .btn:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .btn:focus {
+        outline: none;
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        --tw-ring-opacity: 0.5;
+      }
+      .btn-sm {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+      }
+      .btn-primary {
+        background-color: theme(--color-primary);
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: theme(--color-primary-dark);
+      }
+      .btn-primary:focus {
+        --tw-ring-color: theme(--color-primary);
+      }
+      .btn-secondary {
+        background-color: theme(--color-secondary);
+        color: white;
+      }
+      .btn-secondary:hover {
+        background-color: theme(--color-secondary-dark);
+      }
+      .btn-secondary:focus {
+        --tw-ring-color: theme(--color-secondary);
+      }
+      .btn-accent {
+        background-color: theme(--color-accent);
+        color: #374151;
+      }
+      .btn-accent:hover {
+        background-color: theme(--color-accent-dark);
+      }
+      .btn-accent:focus {
+        --tw-ring-color: theme(--color-accent);
+      }
+      .btn-outline {
+        border: 1px solid theme(--color-neutral-dark);
+        color: #374151;
+      }
+      .btn-outline:hover {
+        background-color: theme(--color-neutral);
+      }
+      .btn-outline:focus {
+        --tw-ring-color: theme(--color-neutral-dark);
+      }
+      .btn-danger {
+        background-color: #EF4444;
+        color: white;
+      }
+      .btn-danger:hover {
+        background-color: #DC2626;
+      }
+      .btn-danger:focus {
+        --tw-ring-color: #EF4444;
+      }
+      .btn-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-icon svg, .btn-icon img {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.25rem;
+      }
+      .btn-rounded {
+        border-radius: 9999px;
+      }
+      .btn-active {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .btn-nav {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition-property: all;
+        transition-duration: 300ms;
+      }
+      @media (min-width: 768px) {
+        .btn-nav {
+          padding: 0.5rem 1rem;
+        }
+      }
+      .btn-nav:focus {
+        outline: none;
+      }
+      .btn-nav-active {
+        background-color: theme(--color-primary);
+        color: white;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+      
+      /* 卡片统一样式 */
+      .card {
+        background-color: white;
+        border: 1px solid theme(--color-neutral-dark);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        transition-property: box-shadow;
+        transition-duration: 300ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .card-sm {
+        padding: 0.75rem;
+      }
+    </style>
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-neutral min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-primary text-xl font-bold">班级积分管理系统</h1>
+            <nav class="flex space-x-1 md:space-x-4">
+                <button id="nav-students" class="btn-nav hover:bg-primary hover:text-white">学生管理</button>
+                <button id="nav-points" class="btn-nav hover:bg-primary hover:text-white">积分管理</button>
+                <button id="nav-stats" class="btn-nav hover:bg-primary hover:text-white">统计分析</button>
+                <button id="nav-rewards" class="btn-nav hover:bg-primary hover:text-white">奖励兑换</button>
+                <button id="nav-settings" class="btn-nav hover:bg-primary hover:text-white">系统设置</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto p-4 mt-4">
+        <!-- 各模块内容将通过JavaScript动态加载 -->
+        <div id="content-container">
+            <!-- 默认显示欢迎页面 -->
+            <div id="welcome-page" class="flex flex-col items-center justify-center min-h-[70vh]">
+                <img src="https://cdn.jsdelivr.net/gh/tailwindlabs/heroicons@latest/optimized/24/outline/academic-cap.svg" class="w-24 h-24 text-primary mb-6" alt="logo">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">欢迎使用班级积分管理系统</h2>
+                <p class="text-gray-600 mb-8">请选择上方导航栏中的功能开始使用</p>
+            </div>
+            
+            <!-- 学生管理页面 -->
+            <div id="students-page" class="hidden">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- 左侧学生管理面板（主区域） -->
+                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">学生管理</h2>
+                            <button id="add-student-btn" class="btn btn-primary btn-sm btn-rounded btn-icon">
+                                <span>添加学生</span>
+                            </button>
+                        </div>
+                        
+                        <!-- 学生搜索 -->
+                        <div class="relative mb-4">
+                            <input type="text" id="student-search" placeholder="搜索学生姓名或学号..." 
+                                class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        
+                        <!-- 学生列表 -->
+                        <div id="student-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto">
+                            <!-- 学生卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧小组管理面板（侧边栏） -->
+                    <div class="w-full md:w-1/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">小组管理</h2>
+                            <button id="add-group-btn" class="btn btn-primary btn-sm btn-rounded btn-icon">
+                                <span>添加小组</span>
+                            </button>
+                        </div>
+                        
+                        <!-- 小组列表 -->
+                        <div id="group-list" class="grid grid-cols-1 gap-4">
+                            <!-- 小组卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 学生添加/编辑模态框 -->
+                <div id="student-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 id="student-modal-title" class="text-lg font-medium text-gray-800 mb-4">添加学生</h3>
+                        <form id="student-form">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="student-name" class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                                    <input type="text" id="student-name" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label for="student-id" class="block text-sm font-medium text-gray-700 mb-1">学号</label>
+                                    <input type="text" id="student-id" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label for="student-gender" class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                                    <select id="student-gender" 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="男">男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="student-group" class="block text-sm font-medium text-gray-700 mb-1">所属小组</label>
+                                    <select id="student-group" 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">无小组</option>
+                                        <!-- 小组选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="student-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                    class="btn btn-primary">
+                                    保存
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- 小组添加/编辑模态框 -->
+                <div id="group-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 id="group-modal-title" class="text-lg font-medium text-gray-800 mb-4">添加小组</h3>
+                        <form id="group-form">
+                            <div>
+                                <label for="group-name" class="block text-sm font-medium text-gray-700 mb-1">小组名称</label>
+                                <input type="text" id="group-name" required 
+                                    class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary">
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="group-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                    class="btn btn-secondary">
+                                    保存
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- 批量导入学生模态框 -->
+                <div id="import-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">批量导入学生</h3>
+                        <p class="text-sm text-gray-600 mb-4">请上传CSV文件，文件格式应为：姓名,学号,性别,小组名称</p>
+                        <input type="file" id="import-file" accept=".csv" 
+                            class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        <div class="flex justify-end space-x-2 mt-6">
+                            <button type="button" id="import-modal-cancel" 
+                                class="btn btn-outline">
+                                取消
+                            </button>
+                            <button type="button" id="import-modal-submit" 
+                                class="btn btn-primary">
+                                导入
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 功能菜单 -->
+                <div class="flex justify-end mt-4 gap-2">
+                    <button id="import-students-btn" class="btn btn-accent btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        批量导入
+                    </button>
+                    <button id="export-students-btn" class="btn btn-accent btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        导出学生
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 积分管理页面 -->
+            <div id="points-page" class="hidden">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- 左侧积分规则管理 -->
+                    <div class="w-full md:w-1/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">积分规则</h2>
+                            <button id="add-rule-btn" class="btn btn-primary btn-sm btn-rounded btn-icon">
+                                <span>添加规则</span>
+                            </button>
+                        </div>
+                        
+                        <!-- 积分规则列表 -->
+                        <div id="rule-list" class="space-y-2 max-h-[60vh] overflow-y-auto">
+                            <!-- 积分规则卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧积分操作区域 -->
+                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">积分操作</h2>
+                            <div class="flex gap-2">
+                                <button id="student-point-btn" class="btn btn-primary btn-sm btn-rounded">单人积分</button>
+                                <button id="group-point-btn" class="btn btn-primary btn-sm btn-rounded">小组积分</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 积分操作区域 -->
+                        <div id="point-operation" class="mb-4">
+                            <div class="bg-neutral rounded-lg p-4">
+                                <h3 class="text-md font-medium text-gray-700 mb-3">操作说明</h3>
+                                <p class="text-sm text-gray-600">
+                                    选择左侧的积分规则和上方的操作类型，然后在下方选择学生或小组进行积分操作。
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- 最近积分记录 -->
+                        <div>
+                            <h3 class="text-md font-medium text-gray-800 mb-2">最近积分记录</h3>
+                            <div id="recent-points" class="space-y-2 max-h-[40vh] overflow-y-auto">
+                                <!-- 积分记录将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 积分规则添加/编辑模态框 -->
+                <div id="rule-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 id="rule-modal-title" class="text-lg font-medium text-gray-800 mb-4">添加积分规则</h3>
+                        <form id="rule-form">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="rule-name" class="block text-sm font-medium text-gray-700 mb-1">规则名称</label>
+                                    <input type="text" id="rule-name" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label for="rule-points" class="block text-sm font-medium text-gray-700 mb-1">分值</label>
+                                    <input type="number" id="rule-points" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                    <p class="text-xs text-gray-500 mt-1">正数表示加分，负数表示减分</p>
+                                </div>
+                                <div>
+                                    <label for="rule-description" class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                                    <textarea id="rule-description" rows="3" 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="rule-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                    class="btn btn-primary">
+                                    保存
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- 单人积分操作模态框 -->
+                <div id="student-point-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">单人积分操作</h3>
+                        <form id="student-point-form">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="point-student" class="block text-sm font-medium text-gray-700 mb-1">选择学生</label>
+                                    <select id="point-student" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">选择学生...</option>
+                                        <!-- 学生选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="point-rule" class="block text-sm font-medium text-gray-700 mb-1">选择积分规则</label>
+                                    <select id="point-rule" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">选择规则...</option>
+                                        <!-- 规则选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="point-reason" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                                    <input type="text" id="point-reason" 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                        placeholder="可选，记录积分原因">
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="student-point-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                    class="btn btn-secondary">
+                                    确认积分
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- 小组积分操作模态框 -->
+                <div id="group-point-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">小组积分操作</h3>
+                        <form id="group-point-form">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="point-group" class="block text-sm font-medium text-gray-700 mb-1">选择小组</label>
+                                    <select id="point-group" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">选择小组...</option>
+                                        <!-- 小组选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="group-point-rule" class="block text-sm font-medium text-gray-700 mb-1">选择积分规则</label>
+                                    <select id="group-point-rule" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">选择规则...</option>
+                                        <!-- 规则选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="group-point-reason" class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                                    <input type="text" id="group-point-reason" 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                        placeholder="可选，记录积分原因">
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="group-point-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                    class="btn btn-secondary">
+                                    确认积分
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 统计分析页面 -->
+            <div id="stats-page" class="hidden">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- 左侧数据概览 -->
+                    <div class="w-full md:w-1/3 space-y-4">
+                        <!-- 班级统计卡片 -->
+                        <div class="bg-white rounded-xl shadow-md p-4">
+                            <h2 class="text-lg font-medium text-gray-800 mb-3">班级数据概览</h2>
+                            <div class="space-y-2">
+                                <div class="flex justify-between py-2 border-b border-neutral-dark">
+                                    <span class="text-gray-600">班级总人数</span>
+                                    <span id="stats-total-students" class="font-medium text-gray-800">0</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-neutral-dark">
+                                    <span class="text-gray-600">小组数量</span>
+                                    <span id="stats-total-groups" class="font-medium text-gray-800">0</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-neutral-dark">
+                                    <span class="text-gray-600">总积分</span>
+                                    <span id="stats-total-points" class="font-medium text-gray-800">0</span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-gray-600">平均积分</span>
+                                    <span id="stats-avg-points" class="font-medium text-gray-800">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 积分区间分布 -->
+                        <div class="bg-white rounded-xl shadow-md p-4">
+                            <h2 class="text-lg font-medium text-gray-800 mb-3">积分区间分布</h2>
+                            <div class="space-y-3" id="stats-point-distribution">
+                                <!-- 积分区间将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧图表和排行榜 -->
+                    <div class="w-full md:w-2/3 space-y-4">
+                        <!-- 积分趋势图 -->
+                        <div class="bg-white rounded-xl shadow-md p-4">
+                            <h2 class="text-lg font-medium text-gray-800 mb-3">积分趋势</h2>
+                            <div class="h-64">
+                                <canvas id="points-trend-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- 排行榜 -->
+                        <div class="bg-white rounded-xl shadow-md p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <h2 class="text-lg font-medium text-gray-800">积分排行榜</h2>
+                                <div>
+                                    <select id="rank-type" class="px-3 py-1 border border-neutral-dark rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="student">学生排名</option>
+                                        <option value="group">小组排名</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="rank-container" class="max-h-[50vh] overflow-y-auto">
+                                <!-- 排行榜将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 奖励兑换页面 -->
+            <div id="rewards-page" class="hidden">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- 左侧奖品管理面板 -->
+                    <div class="w-full md:w-1/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">奖品管理</h2>
+                            <button id="add-reward-btn" class="btn btn-primary btn-sm btn-rounded btn-icon">
+                                <span>添加奖品</span>
+                            </button>
+                        </div>
+                        
+                        <!-- 奖品列表 -->
+                        <div id="reward-list" class="space-y-2 max-h-[60vh] overflow-y-auto">
+                            <!-- 奖品卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧兑换记录面板 -->
+                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">兑换记录</h2>
+                            <button id="new-exchange-btn" class="btn btn-primary btn-sm btn-rounded">兑换奖品</button>
+                        </div>
+                        
+                        <!-- 兑换记录列表 -->
+                        <div id="exchange-list" class="max-h-[60vh] overflow-y-auto">
+                            <!-- 兑换记录将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 奖品添加/编辑模态框 -->
+                <div id="reward-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 id="reward-modal-title" class="text-lg font-medium text-gray-800 mb-4">添加奖品</h3>
+                        <form id="reward-form">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="reward-name" class="block text-sm font-medium text-gray-700 mb-1">奖品名称</label>
+                                    <input type="text" id="reward-name" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label for="reward-points" class="block text-sm font-medium text-gray-700 mb-1">所需积分</label>
+                                    <input type="number" id="reward-points" min="1" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label for="reward-stock" class="block text-sm font-medium text-gray-700 mb-1">库存数量</label>
+                                    <input type="number" id="reward-stock" min="0" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label for="reward-description" class="block text-sm font-medium text-gray-700 mb-1">描述</label>
+                                    <textarea id="reward-description" rows="3" 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="reward-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" 
+                                    class="btn btn-primary">
+                                    保存
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- 积分兑换模态框 -->
+                <div id="exchange-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">兑换奖品</h3>
+                        <form id="exchange-form">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="exchange-student" class="block text-sm font-medium text-gray-700 mb-1">学生</label>
+                                    <select id="exchange-student" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">选择学生...</option>
+                                        <!-- 学生选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="exchange-reward" class="block text-sm font-medium text-gray-700 mb-1">奖品</label>
+                                    <select id="exchange-reward" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">选择奖品...</option>
+                                        <!-- 奖品选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="exchange-quantity" class="block text-sm font-medium text-gray-700 mb-1">数量</label>
+                                    <input type="number" id="exchange-quantity" min="1" value="1" required 
+                                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div class="p-4 bg-neutral rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-700">学生积分</span>
+                                        <span id="exchange-student-points" class="text-sm text-gray-800">0</span>
+                                    </div>
+                                    <div class="flex justify-between mt-2">
+                                        <span class="text-sm font-medium text-gray-700">所需积分</span>
+                                        <span id="exchange-required-points" class="text-sm text-gray-800">0</span>
+                                    </div>
+                                    <div class="flex justify-between mt-2 pt-2 border-t border-neutral-dark">
+                                        <span class="text-sm font-medium text-gray-700">兑换后剩余</span>
+                                        <span id="exchange-remaining-points" class="text-sm text-gray-800">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-6">
+                                <button type="button" id="exchange-modal-cancel" 
+                                    class="btn btn-outline">
+                                    取消
+                                </button>
+                                <button type="submit" id="exchange-confirm-btn"
+                                    class="btn btn-primary">
+                                    确认兑换
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 系统设置页面 -->
+            <div id="settings-page" class="hidden">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                        <h2 class="text-lg font-medium text-gray-800 mb-4">数据管理</h2>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-4 border border-neutral-dark rounded-lg">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">备份数据</h3>
+                                    <p class="text-sm text-gray-600">将所有数据导出为备份文件</p>
+                                </div>
+                                <button id="backup-data-btn" class="btn btn-primary">
+                                    备份数据
+                            </button>
+                        </div>
+                        
+                            <div class="flex justify-between items-center p-4 border border-neutral-dark rounded-lg">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">恢复数据</h3>
+                                    <p class="text-sm text-gray-600">从备份文件恢复数据</p>
+                        </div>
+                                <button id="restore-data-btn" class="btn btn-primary">
+                                    恢复数据
+                                </button>
+                    </div>
+                    
+                            <div class="flex justify-between items-center p-4 border border-neutral-dark rounded-lg">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">清除所有数据</h3>
+                                    <p class="text-sm text-gray-600 text-red-500">危险操作：将删除所有学生、小组和积分数据</p>
+                                </div>
+                                <button id="clear-data-btn" class="btn btn-danger">
+                                    清除数据
+                                </button>
+                            </div>
+                        </div>
+                        </div>
+                        
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                        <h2 class="text-lg font-medium text-gray-800 mb-4">关于系统</h2>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p>班级积分管理系统 V1.0</p>
+                            <p>这是一个用于管理班级学生积分的离线网页应用，所有数据存储在浏览器本地。</p>
+                            <p>请定期备份您的数据，以防数据丢失。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 恢复数据模态框 -->
+                <div id="restore-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">恢复数据</h3>
+                        <p class="text-sm text-gray-600 mb-4">请选择备份文件（.json格式）</p>
+                        <input type="file" id="restore-file" accept=".json" 
+                            class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        <div class="flex justify-end space-x-2 mt-6">
+                            <button type="button" id="restore-modal-cancel" 
+                                class="btn btn-outline">
+                                取消
+                            </button>
+                            <button type="button" id="restore-modal-submit" 
+                                class="btn btn-primary">
+                                恢复
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部状态栏 -->
+    <footer class="bg-white shadow-md mt-auto">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center text-sm text-gray-500">
+            <div>班级积分管理系统 V1.0</div>
+            <div id="last-backup-info">上次备份时间: 未备份</div>
+        </div>
+    </footer>
+
+    <!-- JavaScript代码部分 -->
+    <script>
+        // 核心存储函数
+        
+        // 保存数据到localStorage
+        function saveData(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+                return true;
+            } catch (error) {
+                console.error('保存数据失败:', error);
+                alert('保存数据失败，可能是存储空间不足');
+                return false;
+            }
+        }
+
+        // 从localStorage获取数据
+        function loadData(key, defaultValue = []) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : defaultValue;
+            } catch (error) {
+                console.error('读取数据失败:', error);
+                return defaultValue;
+            }
+        }
+
+        // 生成唯一ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        }
+
+        // 备份所有数据
+        function backupAllData() {
+            const allData = {
+                students: loadData('app_students'),
+                groups: loadData('app_groups'),
+                pointRules: loadData('app_pointRules'),
+                pointLogs: loadData('app_pointLogs'),
+                rewards: loadData('app_rewards'),
+                exchanges: loadData('app_exchanges'),
+                settings: loadData('app_settings'),
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(allData)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `班级积分系统备份_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            saveData('app_lastBackup', new Date().toISOString());
+            updateLastBackupInfo();
+        }
+
+        // 恢复数据
+        function restoreData(jsonData) {
+            try {
+                const data = JSON.parse(jsonData);
+                
+                if (data.students) saveData('app_students', data.students);
+                if (data.groups) saveData('app_groups', data.groups);
+                if (data.pointRules) saveData('app_pointRules', data.pointRules);
+                if (data.pointLogs) saveData('app_pointLogs', data.pointLogs);
+                if (data.rewards) saveData('app_rewards', data.rewards);
+                if (data.exchanges) saveData('app_exchanges', data.exchanges);
+                if (data.settings) saveData('app_settings', data.settings);
+                
+                alert('数据恢复成功！');
+                saveData('app_lastBackup', new Date().toISOString());
+                updateLastBackupInfo();
+                
+                // 刷新所有页面数据
+                initializePages();
+                
+                return true;
+            } catch (error) {
+                console.error('恢复数据失败:', error);
+                alert('恢复数据失败，文件格式可能不正确');
+                return false;
+            }
+        }
+
+        // 更新上次备份信息
+        function updateLastBackupInfo() {
+            const lastBackupElement = document.getElementById('last-backup-info');
+            const lastBackup = loadData('app_lastBackup', null);
+            
+            if (lastBackup) {
+                lastBackupElement.textContent = `上次备份时间: ${formatDate(lastBackup)}`;
+            } else {
+                lastBackupElement.textContent = '上次备份时间: 未备份';
+            }
+        }
+
+        // 导航相关
+        
+        // 页面切换函数
+        function showPage(pageId) {
+            // 隐藏所有页面
+            const pages = document.querySelectorAll('#content-container > div');
+            pages.forEach(page => page.classList.add('hidden'));
+            
+            // 显示选定页面
+            const selectedPage = document.getElementById(pageId);
+            if (selectedPage) {
+                selectedPage.classList.remove('hidden');
+            }
+            
+            // 更新导航按钮样式
+            const navButtons = document.querySelectorAll('nav button');
+            navButtons.forEach(button => {
+                button.classList.remove('btn-nav-active');
+            });
+            
+            // 设置对应导航按钮为激活状态
+            if (pageId !== 'welcome-page') {
+                const activeButton = document.getElementById(`nav-${pageId.split('-')[0]}`);
+                if (activeButton) {
+                    activeButton.classList.add('btn-nav-active');
+                }
+            }
+        }
+
+        // 页面初始化
+        function initializePages() {
+            // 只初始化欢迎页面和数据，所有功能模块懒加载
+            // 这样可以提高首次加载速度
+            initializeData();
+            showPage('welcome-page');
+        }
+        
+        // 延迟初始化特定页面
+        function initPageOnDemand(pageId) {
+            switch(pageId) {
+                case 'students-page':
+                    initStudentsPage();
+                    break;
+                case 'points-page':
+                    initPointsPage();
+                    break;
+                case 'stats-page':
+                    initStatsPage();
+                    break;
+                case 'rewards-page':
+                    initRewardsPage();
+                    break;
+                case 'settings-page':
+                    initSettingsPage();
+                    break;
+            }
+        }
+
+        // 创建一个简单的缓存对象记录每个页面是否已初始化
+        const initializedPages = {
+            'students-page': false,
+            'points-page': false,
+            'stats-page': false,
+            'rewards-page': false,
+            'settings-page': false
+        };
+
+        // 事件绑定
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定导航按钮点击事件
+            document.getElementById('nav-students').addEventListener('click', () => {
+                showPage('students-page');
+                if (!initializedPages['students-page']) {
+                    initPageOnDemand('students-page');
+                    initializedPages['students-page'] = true;
+                }
+            });
+            document.getElementById('nav-points').addEventListener('click', () => {
+                showPage('points-page');
+                if (!initializedPages['points-page']) {
+                    initPageOnDemand('points-page');
+                    initializedPages['points-page'] = true;
+                }
+            });
+            document.getElementById('nav-stats').addEventListener('click', () => {
+                showPage('stats-page');
+                if (!initializedPages['stats-page']) {
+                    initPageOnDemand('stats-page');
+                    initializedPages['stats-page'] = true;
+                }
+            });
+            document.getElementById('nav-rewards').addEventListener('click', () => {
+                showPage('rewards-page');
+                if (!initializedPages['rewards-page']) {
+                    initPageOnDemand('rewards-page');
+                    initializedPages['rewards-page'] = true;
+                }
+            });
+            document.getElementById('nav-settings').addEventListener('click', () => {
+                showPage('settings-page');
+                if (!initializedPages['settings-page']) {
+                    initPageOnDemand('settings-page');
+                    initializedPages['settings-page'] = true;
+                }
+            });
+            
+            // 更新上次备份信息
+            updateLastBackupInfo();
+            
+            // 初始化页面
+            initializePages();
+        });
+
+        // 初始化数据
+        function initializeData() {
+            // 如果是首次使用，初始化基础数据
+            if (!localStorage.getItem('app_students')) {
+                saveData('app_students', []);
+            }
+            
+            if (!localStorage.getItem('app_groups')) {
+                saveData('app_groups', []);
+            }
+            
+            if (!localStorage.getItem('app_pointRules')) {
+                // 使用同一个时间戳减少Date对象创建次数
+                const now = new Date().toISOString();
+                
+                const defaultRules = [
+                    {
+                        id: generateId(),
+                        name: '课堂表现优秀',
+                        points: 5,
+                        description: '积极参与课堂讨论，回答问题正确',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '作业完成出色',
+                        points: 3,
+                        description: '作业准时提交且质量高',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '迟到',
+                        points: -2,
+                        description: '上课迟到但有正当理由',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '缺席',
+                        points: -5,
+                        description: '无故缺席课堂',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '考试成绩优异',
+                        points: 10,
+                        description: '考试成绩90分以上',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '违反课堂纪律',
+                        points: -3,
+                        description: '扰乱课堂秩序，影响他人学习',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '班级活动参与',
+                        points: 4,
+                        description: '积极参与班级组织的活动',
+                        createdAt: now,
+                        updatedAt: now
+                    },
+                    {
+                        id: generateId(),
+                        name: '互助行为',
+                        points: 3,
+                        description: '主动帮助其他同学解决学习问题',
+                        createdAt: now,
+                        updatedAt: now
+                    }
+                ];
+                
+                // 使用异步方式保存数据避免阻塞UI
+                setTimeout(() => {
+                    saveData('app_pointRules', defaultRules);
+                }, 0);
+            }
+            
+            if (!localStorage.getItem('app_pointLogs')) {
+                saveData('app_pointLogs', []);
+            }
+            
+            if (!localStorage.getItem('app_rewards')) {
+                saveData('app_rewards', []);
+            }
+            
+            if (!localStorage.getItem('app_exchanges')) {
+                saveData('app_exchanges', []);
+            }
+        }
+
+        // 空方法，用于初始化奖励页面
+        function initRewardsPage() {
+            renderRewardList();
+            renderExchangeList();
+            setupRewardListeners();
+        }
+        
+        // 奖励系统相关变量
+        let currentEditRewardId = null;
+        
+        // 渲染奖品列表
+        function renderRewardList() {
+            const rewardList = document.getElementById('reward-list');
+            const rewards = loadData('app_rewards');
+            
+            // 清空列表
+            rewardList.innerHTML = '';
+            
+            if (rewards.length === 0) {
+                rewardList.innerHTML = '<div class="text-center py-4 text-gray-500">暂无奖品，请添加</div>';
+                return;
+            }
+            
+            // 创建奖品卡片
+            rewards.forEach(reward => {
+                const rewardCard = document.createElement('div');
+                rewardCard.className = 'card card-sm';
+                rewardCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-md font-medium text-gray-800">${reward.name}</h3>
+                        <span class="bg-secondary text-white px-2 py-1 rounded-full text-xs">${reward.pointsCost}积分</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-1">${reward.description || '无描述'}</p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-xs text-gray-400">库存: ${reward.stock}</span>
+                        <div class="flex space-x-2">
+                            <button class="edit-reward-btn btn btn-primary btn-sm" data-id="${reward.id}">编辑</button>
+                            <button class="delete-reward-btn btn btn-danger btn-sm" data-id="${reward.id}">删除</button>
+                        </div>
+                    </div>
+                `;
+                rewardList.appendChild(rewardCard);
+            });
+            
+            // 绑定编辑和删除按钮事件
+            document.querySelectorAll('.edit-reward-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const rewardId = e.currentTarget.dataset.id;
+                    openRewardModal('edit', rewardId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-reward-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const rewardId = e.currentTarget.dataset.id;
+                    const reward = rewards.find(r => r.id === rewardId);
+                    if (confirm(`确定要删除奖品"${reward.name}"吗？`)) {
+                        deleteReward(rewardId);
+                    }
+                });
+            });
+        }
+        
+        // 渲染兑换记录
+        function renderExchangeList() {
+            const exchangeList = document.getElementById('exchange-list');
+            const exchanges = loadData('app_exchanges');
+            const students = loadData('app_students');
+            const rewards = loadData('app_rewards');
+            
+            // 清空列表
+            exchangeList.innerHTML = '';
+            
+            if (exchanges.length === 0) {
+                exchangeList.innerHTML = '<div class="text-center py-4 text-gray-500">暂无兑换记录</div>';
+                return;
+            }
+            
+            // 按日期排序，最新的在前面
+            const sortedExchanges = [...exchanges].sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            
+            // 创建兑换记录
+            sortedExchanges.forEach(exchange => {
+                const student = students.find(s => s.id === exchange.studentId);
+                const reward = rewards.find(r => r.id === exchange.rewardId);
+                
+                if (!student || !reward) return;
+                
+                const exchangeItem = document.createElement('div');
+                exchangeItem.className = 'card card-sm';
+                exchangeItem.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-md font-medium text-gray-800">${student.name}</span>
+                            <span class="text-xs text-gray-500 ml-2">${student.studentId}</span>
+                        </div>
+                        <span class="text-xs text-gray-500">${formatDate(exchange.createdAt)}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <div class="text-sm text-gray-700">
+                            兑换: ${reward.name} × ${exchange.quantity}
+                        </div>
+                        <span class="text-xs text-red-500">-${exchange.pointsCost}积分</span>
+                    </div>
+                `;
+                exchangeList.appendChild(exchangeItem);
+            });
+        }
+        
+        // 设置奖励页面事件监听器
+        function setupRewardListeners() {
+            // 添加奖品按钮
+            document.getElementById('add-reward-btn').addEventListener('click', () => {
+                openRewardModal('add');
+            });
+            
+            // 兑换奖品按钮
+            document.getElementById('new-exchange-btn').addEventListener('click', () => {
+                openExchangeModal();
+            });
+            
+            // 奖品模态框取消按钮
+            document.getElementById('reward-modal-cancel').addEventListener('click', () => {
+                document.getElementById('reward-modal').classList.add('hidden');
+            });
+            
+            // 兑换模态框取消按钮
+            document.getElementById('exchange-modal-cancel').addEventListener('click', () => {
+                document.getElementById('exchange-modal').classList.add('hidden');
+            });
+            
+            // 奖品表单提交
+            document.getElementById('reward-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveReward();
+            });
+            
+            // 兑换表单提交
+            document.getElementById('exchange-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveExchange();
+            });
+            
+            // 兑换时学生选择变化
+            document.getElementById('exchange-student').addEventListener('change', updateExchangeInfo);
+            
+            // 兑换时奖品选择变化
+            document.getElementById('exchange-reward').addEventListener('change', updateExchangeInfo);
+            
+            // 兑换时数量变化
+            document.getElementById('exchange-quantity').addEventListener('input', updateExchangeInfo);
+        }
+        
+        // 打开奖品模态框
+        function openRewardModal(mode, rewardId = null) {
+            const modal = document.getElementById('reward-modal');
+            const titleElement = document.getElementById('reward-modal-title');
+            const form = document.getElementById('reward-form');
+            
+            // 重置表单
+            form.reset();
+            
+            if (mode === 'edit' && rewardId) {
+                // 编辑模式
+                titleElement.textContent = '编辑奖品';
+                currentEditRewardId = rewardId;
+                
+                const rewards = loadData('app_rewards');
+                const reward = rewards.find(r => r.id === rewardId);
+                
+                if (reward) {
+                    document.getElementById('reward-name').value = reward.name;
+                    document.getElementById('reward-points').value = reward.pointsCost;
+                    document.getElementById('reward-stock').value = reward.stock;
+                    document.getElementById('reward-description').value = reward.description || '';
+                }
+            } else {
+                // 添加模式
+                titleElement.textContent = '添加奖品';
+                currentEditRewardId = null;
+            }
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+        
+        // 打开兑换模态框
+        function openExchangeModal() {
+            const modal = document.getElementById('exchange-modal');
+            const form = document.getElementById('exchange-form');
+            
+            // 重置表单
+            form.reset();
+            
+            // 填充学生下拉选项
+            const studentSelect = document.getElementById('exchange-student');
+            const students = loadData('app_students');
+            
+            // 清空现有选项（除了第一个"选择学生"）
+            while (studentSelect.options.length > 1) {
+                studentSelect.remove(1);
+            }
+            
+            // 添加学生选项（按积分从高到低排序）
+            const sortedStudents = [...students].sort((a, b) => 
+                (b.totalPoints || 0) - (a.totalPoints || 0)
+            );
+            
+            sortedStudents.forEach(student => {
+                const option = new Option(`${student.name} (${student.totalPoints || 0}积分)`, student.id);
+                studentSelect.add(option);
+            });
+            
+            // 填充奖品下拉选项
+            const rewardSelect = document.getElementById('exchange-reward');
+            const rewards = loadData('app_rewards');
+            
+            // 清空现有选项（除了第一个"选择奖品"）
+            while (rewardSelect.options.length > 1) {
+                rewardSelect.remove(1);
+            }
+            
+            // 添加奖品选项（只添加有库存的）
+            const availableRewards = rewards.filter(r => r.stock > 0);
+            
+            if (availableRewards.length === 0) {
+                rewardSelect.innerHTML = '<option value="">没有可用奖品</option>';
+            } else {
+                availableRewards.forEach(reward => {
+                    const option = new Option(`${reward.name} (${reward.pointsCost}积分，库存${reward.stock})`, reward.id);
+                    rewardSelect.add(option);
+                });
+            }
+            
+            // 重置兑换信息
+            document.getElementById('exchange-student-points').textContent = '0';
+            document.getElementById('exchange-required-points').textContent = '0';
+            document.getElementById('exchange-remaining-points').textContent = '0';
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+        
+        // 更新兑换信息
+        function updateExchangeInfo() {
+            const studentId = document.getElementById('exchange-student').value;
+            const rewardId = document.getElementById('exchange-reward').value;
+            const quantity = parseInt(document.getElementById('exchange-quantity').value) || 1;
+            
+            const students = loadData('app_students');
+            const rewards = loadData('app_rewards');
+            
+            // 学生积分
+            let studentPoints = 0;
+            if (studentId) {
+                const student = students.find(s => s.id === studentId);
+                if (student) {
+                    studentPoints = student.totalPoints || 0;
+                }
+            }
+            
+            // 所需积分
+            let requiredPoints = 0;
+            let maxQuantity = 1;
+            if (rewardId) {
+                const reward = rewards.find(r => r.id === rewardId);
+                if (reward) {
+                    requiredPoints = reward.pointsCost * quantity;
+                    maxQuantity = reward.stock;
+                }
+            }
+            
+            // 更新数量上限
+            document.getElementById('exchange-quantity').max = maxQuantity;
+            if (quantity > maxQuantity) {
+                document.getElementById('exchange-quantity').value = maxQuantity;
+                requiredPoints = requiredPoints / quantity * maxQuantity;
+            }
+            
+            // 剩余积分
+            const remainingPoints = studentPoints - requiredPoints;
+            
+            // 更新显示
+            document.getElementById('exchange-student-points').textContent = studentPoints;
+            document.getElementById('exchange-required-points').textContent = requiredPoints;
+            document.getElementById('exchange-remaining-points').textContent = remainingPoints;
+            
+            // 检查是否可以兑换
+            const exchangeButton = document.getElementById('exchange-confirm-btn');
+            if (remainingPoints < 0 || requiredPoints === 0 || !studentId || !rewardId) {
+                exchangeButton.disabled = true;
+                exchangeButton.classList.add('opacity-50');
+            } else {
+                exchangeButton.disabled = false;
+                exchangeButton.classList.remove('opacity-50');
+            }
+        }
+        
+        // 保存奖品
+        function saveReward() {
+            const nameInput = document.getElementById('reward-name');
+            const pointsInput = document.getElementById('reward-points');
+            const stockInput = document.getElementById('reward-stock');
+            const descriptionInput = document.getElementById('reward-description');
+            
+            const name = nameInput.value.trim();
+            const pointsCost = parseInt(pointsInput.value);
+            const stock = parseInt(stockInput.value);
+            const description = descriptionInput.value.trim();
+            
+            // 验证
+            if (!name || isNaN(pointsCost) || isNaN(stock) || pointsCost < 1) {
+                alert('请填写完整的奖品信息，积分必须大于0');
+                return;
+            }
+            
+            // 获取现有奖品
+            const rewards = loadData('app_rewards');
+            
+            // 检查奖品名称是否已存在（编辑时除外）
+            if (!currentEditRewardId) {
+                const rewardExists = rewards.some(r => r.name === name);
+                if (rewardExists) {
+                    alert(`奖品"${name}"已存在，请使用其他名称`);
+                    return;
+                }
+            }
+            
+            const now = new Date().toISOString();
+            
+            if (currentEditRewardId) {
+                // 更新现有奖品
+                const index = rewards.findIndex(r => r.id === currentEditRewardId);
+                if (index !== -1) {
+                    const updatedReward = {
+                        ...rewards[index],
+                        name,
+                        pointsCost,
+                        stock,
+                        description,
+                        updatedAt: now
+                    };
+                    rewards[index] = updatedReward;
+                }
+            } else {
+                // 添加新奖品
+                const newReward = {
+                    id: generateId(),
+                    name,
+                    pointsCost,
+                    stock,
+                    description,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                rewards.push(newReward);
+            }
+            
+            // 保存到localStorage
+            saveData('app_rewards', rewards);
+            
+            // 关闭模态框
+            document.getElementById('reward-modal').classList.add('hidden');
+            
+            // 刷新奖品列表
+            renderRewardList();
+        }
+        
+        // 删除奖品
+        function deleteReward(rewardId) {
+            const rewards = loadData('app_rewards');
+            const exchanges = loadData('app_exchanges');
+            
+            // 检查是否有兑换记录使用该奖品
+            const usedInExchange = exchanges.some(e => e.rewardId === rewardId);
+            if (usedInExchange) {
+                alert('该奖品已被兑换过，无法删除');
+                return;
+            }
+            
+            // 从奖品数组中删除
+            const updatedRewards = rewards.filter(reward => reward.id !== rewardId);
+            
+            // 保存更新后的数据
+            saveData('app_rewards', updatedRewards);
+            
+            // 刷新奖品列表
+            renderRewardList();
+        }
+        
+        // 保存兑换记录
+        function saveExchange() {
+            const studentId = document.getElementById('exchange-student').value;
+            const rewardId = document.getElementById('exchange-reward').value;
+            const quantity = parseInt(document.getElementById('exchange-quantity').value) || 1;
+            
+            // 验证
+            if (!studentId || !rewardId || quantity < 1) {
+                alert('请选择学生、奖品，并确保数量大于0');
+                return;
+            }
+            
+            // 获取数据
+            const students = loadData('app_students');
+            const rewards = loadData('app_rewards');
+            const exchanges = loadData('app_exchanges');
+            
+            const student = students.find(s => s.id === studentId);
+            const reward = rewards.find(r => r.id === rewardId);
+            
+            if (!student || !reward) {
+                alert('所选学生或奖品不存在');
+                return;
+            }
+            
+            // 检查库存
+            if (reward.stock < quantity) {
+                alert(`奖品"${reward.name}"库存不足，当前库存: ${reward.stock}`);
+                return;
+            }
+            
+            // 计算所需积分
+            const requiredPoints = reward.pointsCost * quantity;
+            
+            // 检查积分是否足够
+            if ((student.totalPoints || 0) < requiredPoints) {
+                alert(`学生"${student.name}"积分不足，当前积分: ${student.totalPoints || 0}，需要: ${requiredPoints}`);
+                return;
+            }
+            
+            // 创建兑换记录
+            const now = new Date().toISOString();
+            const newExchange = {
+                id: generateId(),
+                studentId,
+                rewardId,
+                pointsCost: requiredPoints,
+                quantity,
+                createdAt: now
+            };
+            
+            // 更新学生积分
+            const studentIndex = students.findIndex(s => s.id === studentId);
+            if (studentIndex !== -1) {
+                students[studentIndex].totalPoints = students[studentIndex].totalPoints - requiredPoints;
+            }
+            
+            // 更新奖品库存
+            const rewardIndex = rewards.findIndex(r => r.id === rewardId);
+            if (rewardIndex !== -1) {
+                rewards[rewardIndex].stock = rewards[rewardIndex].stock - quantity;
+            }
+            
+            // 保存数据
+            exchanges.push(newExchange);
+            saveData('app_exchanges', exchanges);
+            saveData('app_students', students);
+            saveData('app_rewards', rewards);
+            
+            // 关闭模态框
+            document.getElementById('exchange-modal').classList.add('hidden');
+            
+            // 刷新列表
+            renderRewardList();
+            renderExchangeList();
+            
+            // 提示成功
+            alert(`兑换成功，学生"${student.name}"兑换了"${reward.name}" × ${quantity}，花费${requiredPoints}积分`);
+        }
+
+        // 学生管理功能
+        let currentEditStudentId = null;
+        let currentEditGroupId = null;
+
+        // 初始化学生管理页面
+        function initStudentsPage() {
+            renderStudentList();
+            renderGroupList();
+            setupStudentListeners();
+        }
+
+        // 渲染学生列表
+        function renderStudentList(searchTerm = '') {
+            const studentList = document.getElementById('student-list');
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            
+            // 清空列表
+            studentList.innerHTML = '';
+            
+            if (students.length === 0) {
+                studentList.innerHTML = '<div class="text-center py-4 text-gray-500">暂无学生，请添加</div>';
+                return;
+            }
+            
+            // 过滤学生
+            const filteredStudents = searchTerm 
+                ? students.filter(student => 
+                    student.name.includes(searchTerm) || 
+                    student.studentId.includes(searchTerm))
+                : students;
+            
+            if (filteredStudents.length === 0) {
+                studentList.innerHTML = '<div class="text-center py-4 text-gray-500">未找到匹配的学生</div>';
+                return;
+            }
+            
+            // 创建学生卡片
+            filteredStudents.forEach(student => {
+                const groupName = student.groupId 
+                    ? groups.find(g => g.id === student.groupId)?.name || '未分组' 
+                    : '未分组';
+                
+                const studentCard = document.createElement('div');
+                studentCard.className = 'bg-white rounded-lg shadow-sm p-2 hover:shadow-md transition-shadow';
+                studentCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <h3 class="text-sm font-medium text-gray-800">${student.name}</h3>
+                            <span class="text-xs text-gray-500 ml-2">${student.studentId}</span>
+                        </div>
+                        <span class="bg-primary text-white px-2 py-0.5 rounded-full text-xs">${student.totalPoints || 0}分</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1 text-xs">
+                        <span class="text-gray-400">${groupName} | ${student.gender}</span>
+                        <div class="flex space-x-2">
+                            <button class="edit-student-btn btn btn-primary btn-sm" data-id="${student.id}">编辑</button>
+                            <button class="delete-student-btn btn btn-danger btn-sm" data-id="${student.id}">删除</button>
+                        </div>
+                    </div>
+                `;
+                studentList.appendChild(studentCard);
+            });
+            
+            // 绑定编辑和删除按钮事件
+            document.querySelectorAll('.edit-student-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const studentId = e.currentTarget.dataset.id;
+                    openStudentModal('edit', studentId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-student-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const studentId = e.currentTarget.dataset.id;
+                    const student = students.find(s => s.id === studentId);
+                    if (confirm(`确定要删除学生"${student.name}"吗？`)) {
+                        deleteStudent(studentId);
+                    }
+                });
+            });
+        }
+
+        // 渲染小组列表
+        function renderGroupList() {
+            const groupList = document.getElementById('group-list');
+            const groups = loadData('app_groups');
+            const students = loadData('app_students');
+            
+            // 清空列表
+            groupList.innerHTML = '';
+            
+            if (groups.length === 0) {
+                groupList.innerHTML = '<div class="col-span-2 text-center py-4 text-gray-500">暂无小组，请添加</div>';
+                return;
+            }
+            
+            // 创建小组卡片
+            groups.forEach(group => {
+                const groupStudents = students.filter(student => student.groupId === group.id);
+                const totalPoints = groupStudents.reduce((sum, student) => sum + (student.totalPoints || 0), 0);
+                
+                const groupCard = document.createElement('div');
+                groupCard.className = 'card';
+                groupCard.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-md font-medium text-gray-800">${group.name}</h3>
+                        <div class="flex space-x-2">
+                            <button class="edit-group-btn btn btn-primary btn-sm" data-id="${group.id}">编辑</button>
+                            <button class="delete-group-btn btn btn-danger btn-sm" data-id="${group.id}">删除</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <div>成员数: ${groupStudents.length}</div>
+                        <div>总积分: ${totalPoints}</div>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        ${groupStudents.length > 0 
+                            ? groupStudents.map(s => s.name).join(', ')
+                            : '(暂无成员)'}
+                    </div>
+                `;
+                groupList.appendChild(groupCard);
+            });
+            
+            // 绑定编辑和删除按钮事件
+            document.querySelectorAll('.edit-group-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const groupId = e.currentTarget.dataset.id;
+                    openGroupModal('edit', groupId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-group-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const groupId = e.currentTarget.dataset.id;
+                    const group = groups.find(g => g.id === groupId);
+                    const groupStudents = students.filter(student => student.groupId === groupId);
+                    
+                    if (groupStudents.length > 0) {
+                        alert(`小组"${group.name}"中还有学生，无法删除。请先将学生移出小组。`);
+                    } else if (confirm(`确定要删除小组"${group.name}"吗？`)) {
+                        deleteGroup(groupId);
+                    }
+                });
+            });
+        }
+
+        // 设置学生管理页面的事件监听器
+        function setupStudentListeners() {
+            // 添加学生按钮
+            document.getElementById('add-student-btn').addEventListener('click', () => {
+                openStudentModal('add');
+            });
+            
+            // 添加小组按钮
+            document.getElementById('add-group-btn').addEventListener('click', () => {
+                openGroupModal('add');
+            });
+            
+            // 学生搜索
+            document.getElementById('student-search').addEventListener('input', (e) => {
+                renderStudentList(e.target.value.trim());
+            });
+            
+            // 学生模态框取消按钮
+            document.getElementById('student-modal-cancel').addEventListener('click', () => {
+                document.getElementById('student-modal').classList.add('hidden');
+            });
+            
+            // 小组模态框取消按钮
+            document.getElementById('group-modal-cancel').addEventListener('click', () => {
+                document.getElementById('group-modal').classList.add('hidden');
+            });
+            
+            // 学生表单提交
+            document.getElementById('student-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveStudent();
+            });
+            
+            // 小组表单提交
+            document.getElementById('group-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveGroup();
+            });
+            
+            // 导入学生按钮
+            document.getElementById('import-students-btn').addEventListener('click', () => {
+                document.getElementById('import-modal').classList.remove('hidden');
+            });
+            
+            // 导出学生按钮
+            document.getElementById('export-students-btn').addEventListener('click', () => {
+                exportStudentsToCSV();
+            });
+            
+            // 导入模态框取消按钮
+            document.getElementById('import-modal-cancel').addEventListener('click', () => {
+                document.getElementById('import-modal').classList.add('hidden');
+            });
+            
+            // 导入文件提交
+            document.getElementById('import-modal-submit').addEventListener('click', () => {
+                const fileInput = document.getElementById('import-file');
+                if (fileInput.files.length === 0) {
+                    alert('请选择CSV文件');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const csvData = e.target.result;
+                    importStudents(csvData);
+                    document.getElementById('import-modal').classList.add('hidden');
+                    fileInput.value = '';
+                };
+                
+                reader.onerror = () => {
+                    alert('读取文件失败');
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+
+        // 打开学生模态框
+        function openStudentModal(mode, studentId = null) {
+            const modal = document.getElementById('student-modal');
+            const titleElement = document.getElementById('student-modal-title');
+            const form = document.getElementById('student-form');
+            
+            // 重置表单
+            form.reset();
+            
+            // 填充小组下拉选项
+            const groupSelect = document.getElementById('student-group');
+            const groups = loadData('app_groups');
+            
+            // 清空现有选项（除了第一个"无小组"）
+            while (groupSelect.options.length > 1) {
+                groupSelect.remove(1);
+            }
+            
+            // 添加小组选项
+            groups.forEach(group => {
+                const option = new Option(group.name, group.id);
+                groupSelect.add(option);
+            });
+            
+            if (mode === 'edit' && studentId) {
+                // 编辑模式
+                titleElement.textContent = '编辑学生';
+                currentEditStudentId = studentId;
+                
+                const students = loadData('app_students');
+                const student = students.find(s => s.id === studentId);
+                
+                if (student) {
+                    document.getElementById('student-name').value = student.name;
+                    document.getElementById('student-id').value = student.studentId;
+                    document.getElementById('student-gender').value = student.gender;
+                    document.getElementById('student-group').value = student.groupId || '';
+                }
+            } else {
+                // 添加模式
+                titleElement.textContent = '添加学生';
+                currentEditStudentId = null;
+            }
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 打开小组模态框
+        function openGroupModal(mode, groupId = null) {
+            const modal = document.getElementById('group-modal');
+            const titleElement = document.getElementById('group-modal-title');
+            const form = document.getElementById('group-form');
+            
+            // 重置表单
+            form.reset();
+            
+            if (mode === 'edit' && groupId) {
+                // 编辑模式
+                titleElement.textContent = '编辑小组';
+                currentEditGroupId = groupId;
+                
+                const groups = loadData('app_groups');
+                const group = groups.find(g => g.id === groupId);
+                
+                if (group) {
+                    document.getElementById('group-name').value = group.name;
+                }
+            } else {
+                // 添加模式
+                titleElement.textContent = '添加小组';
+                currentEditGroupId = null;
+            }
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 保存学生
+        function saveStudent() {
+            const nameInput = document.getElementById('student-name');
+            const idInput = document.getElementById('student-id');
+            const genderSelect = document.getElementById('student-gender');
+            const groupSelect = document.getElementById('student-group');
+            
+            const name = nameInput.value.trim();
+            const studentId = idInput.value.trim();
+            const gender = genderSelect.value;
+            const groupId = groupSelect.value;
+            
+            // 验证
+            if (!name || !studentId) {
+                alert('请填写学生姓名和学号');
+                return;
+            }
+            
+            // 获取现有学生
+            const students = loadData('app_students');
+            
+            // 检查学号是否已存在（编辑时除外）
+            if (!currentEditStudentId) {
+                const studentExists = students.some(s => s.studentId === studentId);
+                if (studentExists) {
+                    alert(`学号 ${studentId} 已存在，请使用其他学号`);
+                    return;
+                }
+            }
+            
+            const now = new Date().toISOString();
+            
+            if (currentEditStudentId) {
+                // 更新现有学生
+                const index = students.findIndex(s => s.id === currentEditStudentId);
+                if (index !== -1) {
+                    const updatedStudent = {
+                        ...students[index],
+                        name,
+                        studentId,
+                        gender,
+                        groupId: groupId || null,
+                        updatedAt: now
+                    };
+                    students[index] = updatedStudent;
+                }
+            } else {
+                // 添加新学生
+                const newStudent = {
+                    id: generateId(),
+                    name,
+                    studentId,
+                    gender,
+                    groupId: groupId || null,
+                    totalPoints: 0,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                students.push(newStudent);
+            }
+            
+            // 保存到localStorage
+            saveData('app_students', students);
+            
+            // 关闭模态框
+            document.getElementById('student-modal').classList.add('hidden');
+            
+            // 刷新学生列表和小组列表
+            renderStudentList();
+            renderGroupList();
+        }
+
+        // 保存小组
+        function saveGroup() {
+            const nameInput = document.getElementById('group-name');
+            const name = nameInput.value.trim();
+            
+            // 验证
+            if (!name) {
+                alert('请填写小组名称');
+                return;
+            }
+            
+            // 获取现有小组
+            const groups = loadData('app_groups');
+            
+            // 检查小组名称是否已存在（编辑时除外）
+            if (!currentEditGroupId) {
+                const groupExists = groups.some(g => g.name === name);
+                if (groupExists) {
+                    alert(`小组 ${name} 已存在，请使用其他名称`);
+                    return;
+                }
+            }
+            
+            const now = new Date().toISOString();
+            
+            if (currentEditGroupId) {
+                // 更新现有小组
+                const index = groups.findIndex(g => g.id === currentEditGroupId);
+                if (index !== -1) {
+                    const updatedGroup = {
+                        ...groups[index],
+                        name,
+                        updatedAt: now
+                    };
+                    groups[index] = updatedGroup;
+                }
+            } else {
+                // 添加新小组
+                const newGroup = {
+                    id: generateId(),
+                    name,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                groups.push(newGroup);
+            }
+            
+            // 保存到localStorage
+            saveData('app_groups', groups);
+            
+            // 关闭模态框
+            document.getElementById('group-modal').classList.add('hidden');
+            
+            // 刷新小组列表
+            renderGroupList();
+        }
+
+        // 删除学生
+        function deleteStudent(studentId) {
+            const students = loadData('app_students');
+            const pointLogs = loadData('app_pointLogs');
+            const exchanges = loadData('app_exchanges');
+            
+            // 从学生数组中删除
+            const updatedStudents = students.filter(student => student.id !== studentId);
+            
+            // 同时删除该学生的积分记录和兑换记录
+            const updatedPointLogs = pointLogs.filter(log => log.studentId !== studentId);
+            const updatedExchanges = exchanges.filter(exchange => exchange.studentId !== studentId);
+            
+            // 保存更新后的数据
+            saveData('app_students', updatedStudents);
+            saveData('app_pointLogs', updatedPointLogs);
+            saveData('app_exchanges', updatedExchanges);
+            
+            // 刷新学生列表和小组列表
+            renderStudentList();
+            renderGroupList();
+        }
+
+        // 删除小组
+        function deleteGroup(groupId) {
+            const groups = loadData('app_groups');
+            
+            // 从小组数组中删除
+            const updatedGroups = groups.filter(group => group.id !== groupId);
+            
+            // 保存更新后的数据
+            saveData('app_groups', updatedGroups);
+            
+            // 刷新小组列表
+            renderGroupList();
+        }
+
+        // 批量导入学生
+        function importStudents(csvData) {
+            // 将CSV数据按行分割
+            const rows = csvData.split(/\r?\n/).filter(row => row.trim() !== '');
+            
+            if (rows.length === 0) {
+                alert('文件为空或格式不正确');
+                return;
+            }
+            
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            const imported = [];
+            const errors = [];
+            
+            // 处理每一行
+            rows.forEach((row, index) => {
+                // 跳过可能的标题行
+                if (index === 0 && row.includes('姓名') && row.includes('学号')) {
+                    return;
+                }
+                
+                // 解析CSV行
+                const columns = row.split(',').map(col => col.trim());
+                
+                if (columns.length < 2) {
+                    errors.push(`第${index + 1}行: 数据不完整，至少需要姓名和学号`);
+                    return;
+                }
+                
+                const name = columns[0];
+                const studentId = columns[1];
+                const gender = columns.length > 2 ? columns[2] : '未知';
+                const groupName = columns.length > 3 ? columns[3] : '';
+                
+                // 验证学号是否已存在
+                if (students.some(s => s.studentId === studentId)) {
+                    errors.push(`第${index + 1}行: 学号 ${studentId} 已存在`);
+                    return;
+                }
+                
+                // 查找或创建小组
+                let groupId = null;
+                if (groupName) {
+                    const existingGroup = groups.find(g => g.name === groupName);
+                    if (existingGroup) {
+                        groupId = existingGroup.id;
+                    } else {
+                        // 创建新小组
+                        const newGroup = {
+                            id: generateId(),
+                            name: groupName,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        };
+                        groups.push(newGroup);
+                        groupId = newGroup.id;
+                    }
+                }
+                
+                // 创建新学生对象
+                const newStudent = {
+                    id: generateId(),
+                    name,
+                    studentId,
+                    gender,
+                    groupId,
+                    totalPoints: 0,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                students.push(newStudent);
+                imported.push(newStudent);
+            });
+            
+            // 保存更新后的数据
+            saveData('app_students', students);
+            if (groups.length > 0) {
+                saveData('app_groups', groups);
+            }
+            
+            // 显示导入结果
+            if (errors.length > 0) {
+                alert(`导入完成，成功导入 ${imported.length} 名学生，有 ${errors.length} 条错误记录:\n${errors.join('\n')}`);
+            } else {
+                alert(`导入成功，共导入 ${imported.length} 名学生`);
+            }
+            
+            // 刷新学生列表
+            renderStudentList();
+            renderGroupList();
+        }
+
+        // 导出学生数据为CSV
+        function exportStudentsToCSV() {
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            
+            if (students.length === 0) {
+                alert('没有学生数据可导出');
+                return;
+            }
+            
+            // 生成CSV内容
+            let csvContent = '姓名,学号,性别,小组\n';
+            
+            students.forEach(student => {
+                const groupName = student.groupId 
+                    ? groups.find(g => g.id === student.groupId)?.name || '' 
+                    : '';
+                
+                csvContent += `${student.name},${student.studentId},${student.gender},${groupName}\n`;
+            });
+            
+            // 创建Blob并下载
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `学生名单_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // 积分管理功能
+        let currentEditRuleId = null;
+
+        // 初始化积分管理页面
+        function initPointsPage() {
+            renderRuleList();
+            renderRecentPointsLog();
+            setupPointsListeners();
+        }
+
+        // 渲染积分规则列表
+        function renderRuleList() {
+            const ruleList = document.getElementById('rule-list');
+            const rules = loadData('app_pointRules');
+            
+            // 清空列表
+            ruleList.innerHTML = '';
+            
+            if (rules.length === 0) {
+                ruleList.innerHTML = '<div class="text-center py-4 text-gray-500">暂无积分规则，请添加</div>';
+                return;
+            }
+            
+            // 创建规则卡片
+            rules.forEach(rule => {
+                const ruleCard = document.createElement('div');
+                const pointsClass = parseInt(rule.points) >= 0 ? 'text-green-500' : 'text-red-500';
+                const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
+                
+                ruleCard.className = 'card card-sm';
+                ruleCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-md font-medium text-gray-800">${rule.name}</h3>
+                        <span class="${pointsClass} font-medium">${pointsSign}${rule.points}</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-1">${rule.description || '无描述'}</p>
+                    <div class="mt-2 flex justify-end items-center">
+                        <div class="flex space-x-2">
+                            <button class="edit-rule-btn btn btn-primary btn-sm" data-id="${rule.id}">编辑</button>
+                            <button class="delete-rule-btn btn btn-danger btn-sm" data-id="${rule.id}">删除</button>
+                        </div>
+                    </div>
+                `;
+                ruleList.appendChild(ruleCard);
+            });
+            
+            // 绑定编辑和删除按钮事件
+            document.querySelectorAll('.edit-rule-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const ruleId = e.currentTarget.dataset.id;
+                    openRuleModal('edit', ruleId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-rule-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const ruleId = e.currentTarget.dataset.id;
+                    const rule = rules.find(r => r.id === ruleId);
+                    if (confirm(`确定要删除积分规则"${rule.name}"吗？`)) {
+                        deleteRule(ruleId);
+                    }
+                });
+            });
+        }
+
+        // 渲染最近积分记录
+        function renderRecentPointsLog() {
+            const recentPoints = document.getElementById('recent-points');
+            const pointLogs = loadData('app_pointLogs');
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            // 清空列表
+            recentPoints.innerHTML = '';
+            
+            if (pointLogs.length === 0) {
+                recentPoints.innerHTML = '<div class="text-center py-4 text-gray-500">暂无积分记录</div>';
+                return;
+            }
+            
+            // 只显示最近的10条记录
+            const recentLogs = [...pointLogs].sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            ).slice(0, 10);
+            
+            // 创建积分记录卡片
+            recentLogs.forEach(log => {
+                const student = students.find(s => s.id === log.studentId);
+                const rule = rules.find(r => r.id === log.pointRuleId);
+                
+                if (!student || !rule) return;
+                
+                const logCard = document.createElement('div');
+                const pointsClass = parseInt(log.points) >= 0 ? 'text-green-500' : 'text-red-500';
+                const pointsSign = parseInt(log.points) >= 0 ? '+' : '';
+                
+                logCard.className = 'card card-sm';
+                logCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-md font-medium text-gray-800">${student.name}</span>
+                            <span class="text-xs text-gray-500 ml-2">${student.studentId}</span>
+                        </div>
+                        <span class="${pointsClass} font-medium">${pointsSign}${log.points}</span>
+                    </div>
+                    <p class="text-gray-700 text-sm mt-1">${rule.name}</p>
+                    <div class="mt-1 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">${log.reason || '无备注'}</span>
+                        <span class="text-xs text-gray-400">${formatDate(log.createdAt)}</span>
+                    </div>
+                `;
+                recentPoints.appendChild(logCard);
+            });
+        }
+
+        // 设置积分管理页面的事件监听器
+        function setupPointsListeners() {
+            // 添加积分规则按钮
+            document.getElementById('add-rule-btn').addEventListener('click', () => {
+                openRuleModal('add');
+            });
+            
+            // 规则模态框取消按钮
+            document.getElementById('rule-modal-cancel').addEventListener('click', () => {
+                document.getElementById('rule-modal').classList.add('hidden');
+            });
+            
+            // 规则表单提交
+            document.getElementById('rule-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveRule();
+            });
+            
+            // 单人积分按钮
+            document.getElementById('student-point-btn').addEventListener('click', () => {
+                openStudentPointModal();
+            });
+            
+            // 小组积分按钮
+            document.getElementById('group-point-btn').addEventListener('click', () => {
+                openGroupPointModal();
+            });
+            
+            // 单人积分模态框取消按钮
+            document.getElementById('student-point-modal-cancel').addEventListener('click', () => {
+                document.getElementById('student-point-modal').classList.add('hidden');
+            });
+            
+            // 小组积分模态框取消按钮
+            document.getElementById('group-point-modal-cancel').addEventListener('click', () => {
+                document.getElementById('group-point-modal').classList.add('hidden');
+            });
+            
+            // 单人积分表单提交
+            document.getElementById('student-point-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                addStudentPoints();
+            });
+            
+            // 小组积分表单提交
+            document.getElementById('group-point-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                addGroupPoints();
+            });
+            
+            // 导入学生按钮
+            document.getElementById('import-students-btn').addEventListener('click', () => {
+                document.getElementById('import-modal').classList.remove('hidden');
+            });
+            
+            // 导出学生按钮
+            document.getElementById('export-students-btn').addEventListener('click', () => {
+                exportStudentsToCSV();
+            });
+            
+            // 导入模态框取消按钮
+            document.getElementById('import-modal-cancel').addEventListener('click', () => {
+                document.getElementById('import-modal').classList.add('hidden');
+            });
+            
+            // 导入文件提交
+            document.getElementById('import-modal-submit').addEventListener('click', () => {
+                const fileInput = document.getElementById('import-file');
+                if (fileInput.files.length === 0) {
+                    alert('请选择CSV文件');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const csvData = e.target.result;
+                    importStudents(csvData);
+                    document.getElementById('import-modal').classList.add('hidden');
+                    fileInput.value = '';
+                };
+                
+                reader.onerror = () => {
+                    alert('读取文件失败');
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+
+        // 打开积分规则模态框
+        function openRuleModal(mode, ruleId = null) {
+            const modal = document.getElementById('rule-modal');
+            const titleElement = document.getElementById('rule-modal-title');
+            const form = document.getElementById('rule-form');
+            
+            // 重置表单
+            form.reset();
+            
+            if (mode === 'edit' && ruleId) {
+                // 编辑模式
+                titleElement.textContent = '编辑积分规则';
+                currentEditRuleId = ruleId;
+                
+                const rules = loadData('app_pointRules');
+                const rule = rules.find(r => r.id === ruleId);
+                
+                if (rule) {
+                    document.getElementById('rule-name').value = rule.name;
+                    document.getElementById('rule-points').value = rule.points;
+                    document.getElementById('rule-description').value = rule.description || '';
+                }
+            } else {
+                // 添加模式
+                titleElement.textContent = '添加积分规则';
+                currentEditRuleId = null;
+            }
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 打开单人积分模态框
+        function openStudentPointModal() {
+            const modal = document.getElementById('student-point-modal');
+            const form = document.getElementById('student-point-form');
+            
+            // 重置表单
+            form.reset();
+            
+            // 填充学生下拉选项
+            const studentSelect = document.getElementById('point-student');
+            const students = loadData('app_students');
+            
+            // 清空现有选项（除了第一个"选择学生"）
+            while (studentSelect.options.length > 1) {
+                studentSelect.remove(1);
+            }
+            
+            // 添加学生选项
+            students.forEach(student => {
+                const option = new Option(`${student.name} (${student.studentId})`, student.id);
+                studentSelect.add(option);
+            });
+            
+            // 填充规则下拉选项
+            const ruleSelect = document.getElementById('point-rule');
+            const rules = loadData('app_pointRules');
+            
+            // 清空现有选项（除了第一个"选择规则"）
+            while (ruleSelect.options.length > 1) {
+                ruleSelect.remove(1);
+            }
+            
+            // 添加规则选项
+            rules.forEach(rule => {
+                const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
+                const option = new Option(`${rule.name} (${pointsSign}${rule.points}分)`, rule.id);
+                ruleSelect.add(option);
+            });
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 打开小组积分模态框
+        function openGroupPointModal() {
+            const modal = document.getElementById('group-point-modal');
+            const form = document.getElementById('group-point-form');
+            
+            // 重置表单
+            form.reset();
+            
+            // 填充小组下拉选项
+            const groupSelect = document.getElementById('point-group');
+            const groups = loadData('app_groups');
+            
+            // 清空现有选项（除了第一个"选择小组"）
+            while (groupSelect.options.length > 1) {
+                groupSelect.remove(1);
+            }
+            
+            // 添加小组选项
+            groups.forEach(group => {
+                const option = new Option(group.name, group.id);
+                groupSelect.add(option);
+            });
+            
+            // 填充规则下拉选项
+            const ruleSelect = document.getElementById('group-point-rule');
+            const rules = loadData('app_pointRules');
+            
+            // 清空现有选项（除了第一个"选择规则"）
+            while (ruleSelect.options.length > 1) {
+                ruleSelect.remove(1);
+            }
+            
+            // 添加规则选项
+            rules.forEach(rule => {
+                const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
+                const option = new Option(`${rule.name} (${pointsSign}${rule.points}分)`, rule.id);
+                ruleSelect.add(option);
+            });
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 保存积分规则
+        function saveRule() {
+            const nameInput = document.getElementById('rule-name');
+            const pointsInput = document.getElementById('rule-points');
+            const descriptionInput = document.getElementById('rule-description');
+            
+            const name = nameInput.value.trim();
+            const points = parseInt(pointsInput.value);
+            const description = descriptionInput.value.trim();
+            
+            // 验证
+            if (!name || isNaN(points)) {
+                alert('请填写规则名称和分值');
+                return;
+            }
+            
+            // 获取现有规则
+            const rules = loadData('app_pointRules');
+            
+            // 检查规则名称是否已存在（编辑时除外）
+            if (!currentEditRuleId) {
+                const ruleExists = rules.some(r => r.name === name);
+                if (ruleExists) {
+                    alert(`规则 ${name} 已存在，请使用其他名称`);
+                    return;
+                }
+            }
+            
+            const now = new Date().toISOString();
+            
+            if (currentEditRuleId) {
+                // 更新现有规则
+                const index = rules.findIndex(r => r.id === currentEditRuleId);
+                if (index !== -1) {
+                    const updatedRule = {
+                        ...rules[index],
+                        name,
+                        points,
+                        description,
+                        updatedAt: now
+                    };
+                    rules[index] = updatedRule;
+                }
+            } else {
+                // 添加新规则
+                const newRule = {
+                    id: generateId(),
+                    name,
+                    points,
+                    description,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                rules.push(newRule);
+            }
+            
+            // 保存到localStorage
+            saveData('app_pointRules', rules);
+            
+            // 关闭模态框
+            document.getElementById('rule-modal').classList.add('hidden');
+            
+            // 刷新规则列表
+            renderRuleList();
+        }
+
+        // 删除积分规则
+        function deleteRule(ruleId) {
+            const rules = loadData('app_pointRules');
+            
+            // 从规则数组中删除
+            const updatedRules = rules.filter(rule => rule.id !== ruleId);
+            
+            // 保存更新后的数据
+            saveData('app_pointRules', updatedRules);
+            
+            // 刷新规则列表
+            renderRuleList();
+        }
+
+        // 为学生添加积分
+        function addStudentPoints() {
+            const studentId = document.getElementById('point-student').value;
+            const ruleId = document.getElementById('point-rule').value;
+            const reason = document.getElementById('point-reason').value.trim();
+            
+            // 验证
+            if (!studentId || !ruleId) {
+                alert('请选择学生和积分规则');
+                return;
+            }
+            
+            // 获取学生和规则
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            const student = students.find(s => s.id === studentId);
+            const rule = rules.find(r => r.id === ruleId);
+            
+            if (!student || !rule) {
+                alert('所选学生或规则不存在');
+                return;
+            }
+            
+            // 创建积分记录
+            const pointLogs = loadData('app_pointLogs');
+            const now = new Date().toISOString();
+            
+            const newLog = {
+                id: generateId(),
+                studentId,
+                pointRuleId: ruleId,
+                points: rule.points,
+                reason,
+                createdAt: now
+            };
+            
+            pointLogs.push(newLog);
+            
+            // 更新学生总积分
+            const studentIndex = students.findIndex(s => s.id === studentId);
+            if (studentIndex !== -1) {
+                students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + parseInt(rule.points);
+            }
+            
+            // 保存到localStorage
+            saveData('app_pointLogs', pointLogs);
+            saveData('app_students', students);
+            
+            // 关闭模态框
+            document.getElementById('student-point-modal').classList.add('hidden');
+            
+            // 刷新积分记录
+            renderRecentPointsLog();
+            
+            // 提示成功
+            alert(`已为学生 ${student.name} ${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
+        }
+
+        // 为小组成员添加积分
+        function addGroupPoints() {
+            const groupId = document.getElementById('point-group').value;
+            const ruleId = document.getElementById('group-point-rule').value;
+            const reason = document.getElementById('group-point-reason').value.trim();
+            
+            // 验证
+            if (!groupId || !ruleId) {
+                alert('请选择小组和积分规则');
+                return;
+            }
+            
+            // 获取小组、学生和规则
+            const groups = loadData('app_groups');
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            const group = groups.find(g => g.id === groupId);
+            const rule = rules.find(r => r.id === ruleId);
+            const groupStudents = students.filter(s => s.groupId === groupId);
+            
+            if (!group || !rule) {
+                alert('所选小组或规则不存在');
+                return;
+            }
+            
+            if (groupStudents.length === 0) {
+                alert('所选小组没有学生');
+                return;
+            }
+            
+            // 为每个小组成员创建积分记录
+            const pointLogs = loadData('app_pointLogs');
+            const now = new Date().toISOString();
+            
+            groupStudents.forEach(student => {
+                // 创建积分记录
+                const newLog = {
+                    id: generateId(),
+                    studentId: student.id,
+                    pointRuleId: ruleId,
+                    points: rule.points,
+                    reason: `[小组]${reason}`,
+                    createdAt: now
+                };
+                
+                pointLogs.push(newLog);
+                
+                // 更新学生总积分
+                const studentIndex = students.findIndex(s => s.id === student.id);
+                if (studentIndex !== -1) {
+                    students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + parseInt(rule.points);
+                }
+            });
+            
+            // 保存到localStorage
+            saveData('app_pointLogs', pointLogs);
+            saveData('app_students', students);
+            
+            // 关闭模态框
+            document.getElementById('group-point-modal').classList.add('hidden');
+            
+            // 刷新积分记录
+            renderRecentPointsLog();
+            
+            // 提示成功
+            alert(`已为小组 ${group.name} 的 ${groupStudents.length} 名学生${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
+        }
+
+        // 统计分析功能
+
+        // 初始化统计分析页面
+        function initStatsPage() {
+            updateStatsOverview();
+            updatePointDistribution();
+            updateRankings('student');
+            drawPointsTrendChart();
+            
+            // 绑定排行榜类型选择事件
+            document.getElementById('rank-type').addEventListener('change', function(e) {
+                updateRankings(e.target.value);
+            });
+        }
+
+        // 更新统计概览
+        function updateStatsOverview() {
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            const pointLogs = loadData('app_pointLogs');
+            
+            // 计算总积分
+            const totalPoints = students.reduce((sum, student) => sum + (student.totalPoints || 0), 0);
+            
+            // 更新数据
+            document.getElementById('stats-total-students').textContent = students.length;
+            document.getElementById('stats-total-groups').textContent = groups.length;
+            document.getElementById('stats-total-points').textContent = totalPoints;
+            document.getElementById('stats-avg-points').textContent = students.length > 0 
+                ? Math.round(totalPoints / students.length * 10) / 10
+                : 0;
+        }
+
+        // 更新积分区间分布
+        function updatePointDistribution() {
+            const students = loadData('app_students');
+            const distributionContainer = document.getElementById('stats-point-distribution');
+            
+            // 清空容器
+            distributionContainer.innerHTML = '';
+            
+            if (students.length === 0) {
+                distributionContainer.innerHTML = '<div class="text-center py-4 text-gray-500">暂无学生数据</div>';
+                return;
+            }
+            
+            // 定义积分区间
+            const ranges = [
+                { min: 0, max: 10, label: '0-10分', color: 'bg-red-100' },
+                { min: 10, max: 30, label: '10-30分', color: 'bg-orange-100' },
+                { min: 30, max: 50, label: '30-50分', color: 'bg-yellow-100' },
+                { min: 50, max: 70, label: '50-70分', color: 'bg-green-100' },
+                { min: 70, max: 90, label: '70-90分', color: 'bg-teal-100' },
+                { min: 90, max: Infinity, label: '90分以上', color: 'bg-blue-100' }
+            ];
+            
+            // 计算每个区间的学生数量
+            ranges.forEach(range => {
+                const count = students.filter(student => {
+                    const points = student.totalPoints || 0;
+                    return points >= range.min && points < range.max;
+                }).length;
+                
+                const percentage = students.length > 0 ? Math.round(count / students.length * 100) : 0;
+                
+                // 创建进度条项
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">${range.label}</span>
+                        <span class="text-gray-800">${count}人 (${percentage}%)</span>
+                    </div>
+                    <div class="w-full bg-neutral-dark rounded-full h-2">
+                        <div class="${range.color} h-2 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                distributionContainer.appendChild(item);
+            });
+        }
+
+        // 更新排行榜
+        function updateRankings(type) {
+            const rankContainer = document.getElementById('rank-container');
+            
+            // 清空容器
+            rankContainer.innerHTML = '';
+            
+            if (type === 'student') {
+                // 学生排名
+                const students = loadData('app_students');
+                
+                if (students.length === 0) {
+                    rankContainer.innerHTML = '<div class="text-center py-4 text-gray-500">暂无学生数据</div>';
+                    return;
+                }
+                
+                // 按积分排序
+                const sortedStudents = [...students].sort((a, b) => 
+                    (b.totalPoints || 0) - (a.totalPoints || 0)
+                );
+                
+                // 创建排行榜
+                const table = document.createElement('table');
+                table.className = 'w-full';
+                
+                // 表头
+                table.innerHTML = `
+                    <thead>
+                        <tr class="border-b border-neutral-dark">
+                            <th class="px-2 py-2 text-left">排名</th>
+                            <th class="px-2 py-2 text-left">姓名</th>
+                            <th class="px-2 py-2 text-left">学号</th>
+                            <th class="px-2 py-2 text-right">积分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedStudents.map((student, index) => `
+                            <tr class="border-b border-neutral-dark hover:bg-neutral transition-colors">
+                                <td class="px-2 py-2">${index + 1}</td>
+                                <td class="px-2 py-2">${student.name}</td>
+                                <td class="px-2 py-2">${student.studentId}</td>
+                                <td class="px-2 py-2 text-right font-medium">${student.totalPoints || 0}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+                
+                rankContainer.appendChild(table);
+            } else {
+                // 小组排名
+                const groups = loadData('app_groups');
+                const students = loadData('app_students');
+                
+                if (groups.length === 0) {
+                    rankContainer.innerHTML = '<div class="text-center py-4 text-gray-500">暂无小组数据</div>';
+                    return;
+                }
+                
+                // 计算每个小组的总积分和平均积分
+                const groupStats = groups.map(group => {
+                    const groupStudents = students.filter(student => student.groupId === group.id);
+                    const totalPoints = groupStudents.reduce((sum, student) => sum + (student.totalPoints || 0), 0);
+                    const avgPoints = groupStudents.length > 0 ? Math.round(totalPoints / groupStudents.length * 10) / 10 : 0;
+                    
+                    return {
+                        ...group,
+                        totalPoints,
+                        avgPoints,
+                        memberCount: groupStudents.length
+                    };
+                });
+                
+                // 按总积分排序
+                const sortedGroups = [...groupStats].sort((a, b) => b.totalPoints - a.totalPoints);
+                
+                // 创建排行榜
+                const table = document.createElement('table');
+                table.className = 'w-full';
+                
+                // 表头
+                table.innerHTML = `
+                    <thead>
+                        <tr class="border-b border-neutral-dark">
+                            <th class="px-2 py-2 text-left">排名</th>
+                            <th class="px-2 py-2 text-left">小组</th>
+                            <th class="px-2 py-2 text-right">成员数</th>
+                            <th class="px-2 py-2 text-right">总积分</th>
+                            <th class="px-2 py-2 text-right">平均积分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedGroups.map((group, index) => `
+                            <tr class="border-b border-neutral-dark hover:bg-neutral transition-colors">
+                                <td class="px-2 py-2">${index + 1}</td>
+                                <td class="px-2 py-2">${group.name}</td>
+                                <td class="px-2 py-2 text-right">${group.memberCount}</td>
+                                <td class="px-2 py-2 text-right font-medium">${group.totalPoints}</td>
+                                <td class="px-2 py-2 text-right">${group.avgPoints}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+                
+                rankContainer.appendChild(table);
+            }
+        }
+
+        // 绘制积分趋势图
+        function drawPointsTrendChart() {
+            const pointLogs = loadData('app_pointLogs');
+            
+            if (pointLogs.length === 0) {
+                document.getElementById('points-trend-chart').parentNode.innerHTML = 
+                    '<div class="flex items-center justify-center h-64 text-gray-500">暂无积分数据</div>';
+                return;
+            }
+            
+            // 按日期分组并计算每天的积分
+            const dailyPoints = {};
+            
+            pointLogs.forEach(log => {
+                const date = log.createdAt.split('T')[0];
+                if (!dailyPoints[date]) {
+                    dailyPoints[date] = 0;
+                }
+                dailyPoints[date] += parseInt(log.points);
+            });
+            
+            // 转换为数组并按日期排序
+            const sortedDates = Object.keys(dailyPoints).sort();
+            
+            // 计算累计积分
+            let cumulative = 0;
+            const cumulativePoints = [];
+            
+            sortedDates.forEach(date => {
+                cumulative += dailyPoints[date];
+                cumulativePoints.push(cumulative);
+            });
+            
+            // 只显示最近15天的数据
+            const labels = sortedDates.slice(-15);
+            const data = cumulativePoints.slice(-15);
+            
+            // 绘制图表
+            const ctx = document.getElementById('points-trend-chart').getContext('2d');
+            
+            // 如果已经有图表，销毁它
+            if (window.pointsChart) {
+                window.pointsChart.destroy();
+            }
+            
+            window.pointsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '班级总积分',
+                        data: data,
+                        backgroundColor: 'rgba(255, 133, 162, 0.2)',
+                        borderColor: 'rgba(255, 133, 162, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 133, 162, 1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const date = new Date(tooltipItems[0].label);
+                                    return date.toLocaleDateString('zh-CN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化系统设置页面
+        function initSettingsPage() {
+            // 备份数据按钮
+            document.getElementById('backup-data-btn').addEventListener('click', () => {
+                backupAllData();
+            });
+            
+            // 恢复数据按钮
+            document.getElementById('restore-data-btn').addEventListener('click', () => {
+                document.getElementById('restore-modal').classList.remove('hidden');
+            });
+            
+            // 清除数据按钮
+            document.getElementById('clear-data-btn').addEventListener('click', () => {
+                if (confirm('确定要清除所有数据吗？此操作无法撤销！')) {
+                    clearAllData();
+                }
+            });
+            
+            // 恢复模态框取消按钮
+            document.getElementById('restore-modal-cancel').addEventListener('click', () => {
+                document.getElementById('restore-modal').classList.add('hidden');
+            });
+            
+            // 恢复文件提交
+            document.getElementById('restore-modal-submit').addEventListener('click', () => {
+                const fileInput = document.getElementById('restore-file');
+                if (fileInput.files.length === 0) {
+                    alert('请选择备份文件');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const jsonData = e.target.result;
+                    restoreData(jsonData);
+                    document.getElementById('restore-modal').classList.add('hidden');
+                    fileInput.value = '';
+                };
+                
+                reader.onerror = () => {
+                    alert('读取文件失败');
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+
+        // 清除所有数据
+        function clearAllData() {
+            // 清除所有应用数据
+            localStorage.removeItem('app_students');
+            localStorage.removeItem('app_groups');
+            localStorage.removeItem('app_pointRules');
+            localStorage.removeItem('app_pointLogs');
+            localStorage.removeItem('app_rewards');
+            localStorage.removeItem('app_exchanges');
+            localStorage.removeItem('app_settings');
+            
+            // 保留最后备份时间记录
+            
+            // 重新初始化数据和页面
+            initializeData();
+            initializePages();
+            
+            alert('所有数据已清除');
+        }
+    </script>
+</body>
+</html> 
