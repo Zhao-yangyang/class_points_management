@@ -1296,21 +1296,65 @@
 
         // 备份所有数据
         function backupAllData() {
-            // 先获取完整积分记录（包括归档数据）
+            console.log("开始备份数据...");
+            
+            // 确保获取最新数据（先进行一次强制刷新）
+            localStorage.removeItem('_temp_cache_marker');
+            localStorage.setItem('_temp_cache_marker', new Date().toISOString());
+            
+            // 强制刷新所有数据对象缓存
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('app_')) {
+                    try {
+                        // 读取然后重新写入以刷新缓存
+                        const data = JSON.parse(localStorage.getItem(key));
+                        localStorage.setItem(key, JSON.stringify(data));
+                    } catch (e) {
+                        console.error(`刷新缓存时出错 (${key}):`, e);
+                    }
+                }
+            }
+            
+            // 强制同步读取最新数据
+            const students = loadData('app_students', []);
+            const groups = loadData('app_groups', []);
+            const pointRules = loadData('app_pointRules', []);
+            const rewards = loadData('app_rewards', []);
+            const exchanges = loadData('app_exchanges', []);
+            const settings = loadData('app_settings', {});
+            const storageInfo = loadData('app_storage_info', {});
+            
+            // 获取完整积分记录（包括归档数据）
             const allPointLogs = loadAllPointLogs();
+            console.log(`获取到积分记录: ${allPointLogs.length}条`);
             
             const allData = {
-                students: loadData('app_students'),
-                groups: loadData('app_groups'),
-                pointRules: loadData('app_pointRules'),
+                students: students,
+                groups: groups,
+                pointRules: pointRules,
                 pointLogs: allPointLogs, // 使用合并后的完整积分记录
-                rewards: loadData('app_rewards'),
-                exchanges: loadData('app_exchanges'),
-                settings: loadData('app_settings'),
-                storageInfo: loadData('app_storage_info'),
-                timestamp: new Date().toISOString()
+                rewards: rewards,
+                exchanges: exchanges,
+                settings: settings,
+                storageInfo: storageInfo,
+                timestamp: new Date().toISOString(),
+                version: "2.0.0" // 添加版本信息，便于后续兼容性检查
             };
             
+            // 记录数据统计信息到控制台（便于调试）
+            console.log(`备份数据统计: 学生${students.length}名, 小组${groups.length}个, 积分记录${allPointLogs.length}条`);
+            
+            // 校验数据完整性
+            if (students.length === 0 && allPointLogs.length > 0) {
+                console.warn("警告：备份数据中没有学生信息但存在积分记录，可能数据不完整");
+                if (!confirm("备份的数据中没有学生信息，但存在积分记录，是否继续备份？")) {
+                    console.log("用户取消了备份");
+                    return null;
+                }
+            }
+            
+            // 构建下载功能
             const blob = new Blob([JSON.stringify(allData)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             
@@ -1319,9 +1363,17 @@
             a.download = `班级积分系统备份_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             
-            URL.revokeObjectURL(url);
+            // 清理URL对象
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            // 更新最后备份时间
             saveData('app_lastBackup', new Date().toISOString());
             updateLastBackupInfo();
+            
+            console.log("备份完成！");
+            return allData; // 返回备份的数据对象（便于调试）
         }
 
         // 恢复数据
@@ -3444,6 +3496,9 @@
             
             // 提示成功
             alert(`已为学生 ${student.name} ${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
+            
+            // 添加备份操作
+            backupAllData();
         }
 
         // 为小组成员添加积分
@@ -3513,6 +3568,9 @@
             
             // 提示成功
             alert(`已为小组 ${group.name} 的 ${groupStudents.length} 名学生${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
+            
+            // 添加备份操作
+            backupAllData();
         }
 
         // 统计分析功能
@@ -3793,7 +3851,17 @@
         function initSettingsPage() {
             // 备份数据按钮
             document.getElementById('backup-data-btn').addEventListener('click', () => {
-                backupAllData();
+                console.log("正在备份数据，先进行存储优化...");
+                
+                // 先优化存储，确保数据结构正确
+                optimizePointLogsStorage();
+                
+                // 延迟执行备份，确保优化完成
+                setTimeout(() => {
+                    console.log("存储优化完成，开始备份数据...");
+                    const backupData = backupAllData();
+                    console.log(`备份数据包含 ${backupData.pointLogs.length} 条积分记录, ${backupData.students.length} 名学生`);
+                }, 300);
             });
             
             // 恢复数据按钮
@@ -4686,6 +4754,9 @@
             initStudentPointsTable();
             loadRecentPointsLogs();
             updateDashboardStats();
+            
+            // 添加备份操作
+            backupAllData();
         }
         
         // 进入规则选择学生模式
@@ -4788,6 +4859,9 @@
             // 提示用户
             const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
             alert(`已为学生"${student.name}"${parseInt(rule.points) >= 0 ? '增加' : '扣除'}积分: ${rule.name} (${pointsSign}${rule.points})`);
+            
+            // 添加备份操作
+            backupAllData();
         }
         
         // 打开快速积分操作模态框
@@ -4955,6 +5029,9 @@
             // 提示用户
             const pointsSign = points >= 0 ? '+' : '';
             alert(`已为学生"${student.name}"${points >= 0 ? '增加' : '扣除'}积分: ${ruleName} (${pointsSign}${points})`);
+            
+            // 添加备份操作
+            backupAllData();
         }
 
         // 填充小组积分模态框的选项
