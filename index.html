@@ -229,7 +229,7 @@
         <div id="content-container">
             <!-- 默认显示欢迎页面/仪表盘 -->
             <div id="welcome-page" class="py-2 max-h-[calc(100vh-9rem)] overflow-y-auto">
-                <!-- 使用间隔把内容分开 -->
+                <!-- 顶部摘要卡片 -->
                 <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-primary">
                         <div class="flex justify-between items-center">
@@ -277,53 +277,83 @@
                     </div>
                 </div>
                 
-                <!-- 中间部分 -->
-                <div class="mb-4 flex flex-col md:flex-row gap-4">
-                    <!-- 左侧：积分趋势图 -->
-                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h2 class="text-lg font-medium text-gray-800">积分趋势</h2>
-                            <span id="trend-details" class="text-sm text-primary hover:underline cursor-pointer">查看详情</span>
+                <!-- 学生列表与快速积分操作区域 -->
+                <div class="mb-4">
+                    <div class="bg-white rounded-xl shadow-md p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-medium text-gray-800">学生积分管理</h2>
+                            <div class="flex space-x-2">
+                                <div class="relative">
+                                    <input type="text" id="quick-student-search" placeholder="搜索学生..." 
+                                        class="px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                                    <i class="material-icons absolute right-2 top-2 text-gray-400" style="font-size: 20px;">search</i>
+                                </div>
+                                <select id="quick-group-filter" class="px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                                    <option value="">所有小组</option>
+                                    <!-- 小组选项将通过JavaScript动态生成 -->
+                                </select>
+                                <button id="view-stats-btn" class="btn btn-secondary text-sm">
+                                    <i class="material-icons mr-1" style="font-size: 16px;">analytics</i>查看统计
+                                </button>
+                            </div>
                         </div>
-                        <div class="h-48">
-                            <canvas id="dashboard-trend-chart"></canvas>
+                        
+                        <!-- 快速积分规则选择 -->
+                        <div class="mb-4 p-3 bg-neutral rounded-lg">
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">快速积分规则</h3>
+                            <div id="quick-rule-buttons" class="flex flex-wrap gap-2">
+                                <!-- 积分规则按钮将通过JavaScript动态生成 -->
+                                <div class="animate-pulse h-8 w-20 bg-gray-200 rounded-full"></div>
+                                <div class="animate-pulse h-8 w-24 bg-gray-200 rounded-full"></div>
+                                <div class="animate-pulse h-8 w-22 bg-gray-200 rounded-full"></div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- 右侧：积分区间分布 -->
-                    <div class="w-full md:w-1/3 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h2 class="text-lg font-medium text-gray-800">积分区间分布</h2>
-                            <span id="distribution-details" class="text-sm text-primary hover:underline cursor-pointer">查看详情</span>
-                        </div>
-                        <div class="space-y-2 max-h-48 overflow-y-auto" id="dashboard-point-distribution">
-                            <!-- 积分区间将通过JavaScript动态生成 -->
+                        
+                        <!-- 学生列表表格 -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-neutral text-gray-700">
+                                    <tr>
+                                        <th class="px-4 py-3">姓名</th>
+                                        <th class="px-4 py-3">学号</th>
+                                        <th class="px-4 py-3">小组</th>
+                                        <th class="px-4 py-3 text-center">当前积分</th>
+                                        <th class="px-4 py-3 text-center">快速操作</th>
+                                        <th class="px-4 py-3 text-right">详细操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-points-table" class="divide-y divide-neutral-dark">
+                                    <!-- 学生列表将通过JavaScript动态生成 -->
+                                    <tr class="animate-pulse">
+                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-20"></div></td>
+                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-16"></div></td>
+                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-12"></div></td>
+                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-8 mx-auto"></div></td>
+                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-24 mx-auto"></div></td>
+                                        <td class="px-4 py-3 text-right"><div class="h-5 bg-gray-200 rounded w-14 ml-auto"></div></td>
+                                    </tr>
+                                    <tr class="animate-pulse">
+                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-24"></div></td>
+                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-16"></div></td>
+                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-14"></div></td>
+                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-8 mx-auto"></div></td>
+                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-24 mx-auto"></div></td>
+                                        <td class="px-4 py-3 text-right"><div class="h-5 bg-gray-200 rounded w-14 ml-auto"></div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 底部部分 -->
-                <div class="flex flex-col md:flex-row gap-4">
-                    <!-- 最近积分记录 -->
-                    <div class="w-full md:w-1/2 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h2 class="text-lg font-medium text-gray-800">最近积分记录</h2>
-                            <button id="dashboard-more-logs" class="text-sm text-primary hover:underline">查看全部</button>
-                        </div>
-                        <div id="dashboard-recent-logs" class="max-h-[200px] overflow-y-auto">
-                            <!-- 积分记录将通过JavaScript动态生成 -->
-                        </div>
+                <!-- 底部区域：最近积分记录 -->
+                <div class="bg-white rounded-xl shadow-md p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-lg font-medium text-gray-800">最近积分记录</h2>
+                        <button id="more-logs-btn" class="text-sm text-primary hover:underline">查看全部</button>
                     </div>
-                    
-                    <!-- 积分排行榜 -->
-                    <div class="w-full md:w-1/2 bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h2 class="text-lg font-medium text-gray-800">积分排行榜</h2>
-                            <!-- 移除"查看全部"按钮 -->
-                        </div>
-                        <div id="dashboard-rank-list" class="max-h-[200px] overflow-y-auto">
-                            <!-- 排行榜将通过JavaScript动态生成 -->
-                        </div>
+                    <div id="recent-points-logs" class="max-h-[200px] overflow-y-auto">
+                        <!-- 积分记录将通过JavaScript动态生成 -->
                     </div>
                 </div>
             </div>
@@ -1042,6 +1072,58 @@
         </div>
     </footer>
 
+    <!-- 快速积分操作模态框 -->
+    <div id="quick-point-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">快速积分操作</h3>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center">
+                        <span class="font-medium mr-2" id="quick-point-student-name">学生姓名</span>
+                        <span class="text-sm text-gray-500" id="quick-point-student-id"></span>
+                    </div>
+                    <div class="flex items-center mt-1">
+                        <span class="text-sm text-gray-500 mr-2">当前积分:</span>
+                        <span class="font-medium" id="quick-point-current-points">0</span>
+                    </div>
+                </div>
+                <div class="border-t border-neutral-dark pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">选择积分规则:</span>
+                        <span class="text-primary text-sm hover:underline cursor-pointer" id="quick-custom-point">自定义积分</span>
+                    </div>
+                    <div id="quick-point-rules" class="grid grid-cols-2 gap-2">
+                        <!-- 积分规则选择将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                <div id="custom-point-input" class="border-t border-neutral-dark pt-4 hidden">
+                    <label for="custom-points-value" class="block text-sm font-medium text-gray-700 mb-1">输入积分值:</label>
+                    <div class="flex items-center">
+                        <button id="custom-points-minus" class="bg-red-100 text-red-500 px-3 py-1 rounded-l-lg">-</button>
+                        <input type="number" id="custom-points-value" value="1" min="1" 
+                            class="w-full px-3 py-1 border-y border-neutral-dark focus:outline-none focus:ring-2 focus:ring-primary text-center">
+                        <button id="custom-points-plus" class="bg-green-100 text-green-500 px-3 py-1 rounded-r-lg">+</button>
+                    </div>
+                </div>
+                <div>
+                    <label for="quick-point-reason" class="block text-sm font-medium text-gray-700 mb-1">备注 (可选):</label>
+                    <input type="text" id="quick-point-reason" placeholder="请输入备注信息..." 
+                        class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 mt-6">
+                <button type="button" id="quick-point-cancel" 
+                    class="btn btn-outline">
+                    取消
+                </button>
+                <button type="button" id="quick-point-confirm" 
+                    class="btn btn-primary">
+                    确认
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript代码部分 -->
     <script>
         // 核心存储函数
@@ -1359,12 +1441,17 @@
         // 初始化欢迎页面仪表盘
         function initWelcomePage() {
             updateDashboardStats();
-            drawDashboardCharts();
-            loadDashboardRecentLogs();
-            loadDashboardRankings();
+            // 初始化学生积分表格
+            initStudentPointsTable();
+            // 初始化快速积分规则按钮
+            initQuickRuleButtons();
+            // 加载最近积分记录
+            loadRecentPointsLogs();
+            // 设置首页相关事件监听器
+            setupWelcomePageListeners();
             
-            // 添加点击事件
-            document.getElementById('dashboard-more-logs').addEventListener('click', () => {
+            // 添加"查看全部"点击事件
+            document.getElementById('more-logs-btn').addEventListener('click', () => {
                 showPage('points-page');
                 if (!initializedPages['points-page']) {
                     initPageOnDemand('points-page');
@@ -1372,16 +1459,8 @@
                 }
             });
             
-            // 添加积分趋势和分布详情查看事件
-            document.getElementById('trend-details').addEventListener('click', () => {
-                showPage('stats-page');
-                if (!initializedPages['stats-page']) {
-                    initPageOnDemand('stats-page');
-                    initializedPages['stats-page'] = true;
-                }
-            });
-            
-            document.getElementById('distribution-details').addEventListener('click', () => {
+            // 添加"查看统计"按钮事件
+            document.getElementById('view-stats-btn').addEventListener('click', () => {
                 showPage('stats-page');
                 if (!initializedPages['stats-page']) {
                     initPageOnDemand('stats-page');
@@ -4173,6 +4252,680 @@
             }
             
             return false;
+        }
+
+        // 初始化学生积分表格
+        function initStudentPointsTable() {
+            const tableBody = document.getElementById('student-points-table');
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            
+            // 清空表格
+            tableBody.innerHTML = '';
+            
+            if (students.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">暂无学生，请添加学生</td></tr>';
+                return;
+            }
+            
+            // 创建学生行
+            students.forEach(student => {
+                const groupName = student.groupId 
+                    ? groups.find(g => g.id === student.groupId)?.name || '未分组' 
+                    : '未分组';
+                
+                const totalPoints = student.totalPoints || 0;
+                const pointsClass = totalPoints >= 0 ? 'text-green-600' : 'text-red-600';
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-neutral transition-colors';
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <div class="font-medium">${student.name}</div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600">${student.studentId}</td>
+                    <td class="px-4 py-3 text-gray-600">${groupName}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="${pointsClass} font-medium">${totalPoints}</span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button class="quick-minus-btn bg-red-100 text-red-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-200" data-id="${student.id}">
+                                <i class="material-icons" style="font-size: 16px;">remove</i>
+                            </button>
+                            <button class="quick-add-btn bg-green-100 text-green-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-green-200" data-id="${student.id}">
+                                <i class="material-icons" style="font-size: 16px;">add</i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <button class="custom-point-btn bg-primary text-white px-2 py-1 rounded hover:bg-primary-dark transition-colors" data-id="${student.id}">
+                            详细操作
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // 绑定快速加减分按钮事件
+            document.querySelectorAll('.quick-minus-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 默认减1分
+                    const studentId = this.getAttribute('data-id');
+                    quickAddPoints(studentId, -1);
+                });
+            });
+            
+            document.querySelectorAll('.quick-add-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 默认加1分
+                    const studentId = this.getAttribute('data-id');
+                    quickAddPoints(studentId, 1);
+                });
+            });
+            
+            document.querySelectorAll('.custom-point-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    openQuickPointModal(studentId);
+                });
+            });
+        }
+        
+        // 初始化快速积分规则按钮
+        function initQuickRuleButtons() {
+            const container = document.getElementById('quick-rule-buttons');
+            const rules = loadData('app_pointRules');
+            
+            // 清空容器
+            container.innerHTML = '';
+            
+            if (rules.length === 0) {
+                container.innerHTML = '<div class="text-center w-full py-2 text-gray-500">暂无积分规则</div>';
+                return;
+            }
+            
+            // 只显示常用的几个规则（最多6个）
+            const displayRules = rules.slice(0, 6);
+            
+            displayRules.forEach(rule => {
+                const pointsValue = parseInt(rule.points);
+                const btnClass = pointsValue >= 0 ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-100 text-red-600 hover:bg-red-200';
+                const pointsSign = pointsValue >= 0 ? '+' : '';
+                
+                const btn = document.createElement('button');
+                btn.className = `rule-quick-btn px-3 py-1 rounded-full text-sm ${btnClass}`;
+                btn.setAttribute('data-rule-id', rule.id);
+                btn.setAttribute('data-points', rule.points);
+                btn.innerHTML = `${rule.name} (${pointsSign}${rule.points})`;
+                
+                container.appendChild(btn);
+            });
+            
+            // 如果有更多规则，添加"更多"按钮
+            if (rules.length > 6) {
+                const moreBtn = document.createElement('button');
+                moreBtn.className = 'px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-gray-200';
+                moreBtn.id = 'more-rules-btn';
+                moreBtn.textContent = '更多...';
+                container.appendChild(moreBtn);
+                
+                // 绑定"更多"按钮事件
+                moreBtn.addEventListener('click', () => {
+                    showPage('points-page');
+                    if (!initializedPages['points-page']) {
+                        initPageOnDemand('points-page');
+                        initializedPages['points-page'] = true;
+                    }
+                });
+            }
+        }
+        
+        // 加载最近积分记录
+        function loadRecentPointsLogs() {
+            const logsContainer = document.getElementById('recent-points-logs');
+            const pointLogs = loadData('app_pointLogs');
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            // 清空容器
+            logsContainer.innerHTML = '';
+            
+            if (pointLogs.length === 0) {
+                logsContainer.innerHTML = '<div class="text-center py-4 text-gray-500">暂无积分记录</div>';
+                return;
+            }
+            
+            // 只显示最近的10条记录
+            const recentLogs = [...pointLogs].sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            ).slice(0, 10);
+            
+            // 创建积分记录项
+            recentLogs.forEach(log => {
+                const student = students.find(s => s.id === log.studentId);
+                const rule = rules.find(r => r.id === log.pointRuleId);
+                
+                if (!student || !rule) return;
+                
+                const logItem = document.createElement('div');
+                const pointsClass = parseInt(log.points) >= 0 ? 'text-green-500' : 'text-red-500';
+                const pointsSign = parseInt(log.points) >= 0 ? '+' : '';
+                
+                logItem.className = 'py-2 border-b border-neutral-dark last:border-b-0';
+                logItem.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="font-medium text-gray-800">${student.name}</span>
+                            <span class="${pointsClass} font-medium ml-2">${pointsSign}${log.points}</span>
+                        </div>
+                        <span class="text-xs text-gray-500">${formatDate(log.createdAt)}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-sm text-gray-600">${rule.name}</span>
+                        ${log.reason ? `<span class="text-xs text-gray-500">备注: ${log.reason}</span>` : ''}
+                    </div>
+                `;
+                logsContainer.appendChild(logItem);
+            });
+        }
+        
+        // 设置首页事件监听器
+        function setupWelcomePageListeners() {
+            // 学生搜索功能
+            const searchInput = document.getElementById('quick-student-search');
+            searchInput.addEventListener('input', function() {
+                filterStudentPointsTable(this.value, document.getElementById('quick-group-filter').value);
+            });
+            
+            // 小组筛选功能
+            const groupFilter = document.getElementById('quick-group-filter');
+            // 先填充小组选项
+            populateGroupFilter();
+            // 添加事件监听
+            groupFilter.addEventListener('change', function() {
+                filterStudentPointsTable(searchInput.value, this.value);
+            });
+            
+            // 绑定快速积分规则按钮事件
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('rule-quick-btn') || e.target.parentElement.classList.contains('rule-quick-btn')) {
+                    const button = e.target.classList.contains('rule-quick-btn') ? e.target : e.target.parentElement;
+                    const ruleId = button.getAttribute('data-rule-id');
+                    // 打开学生选择模式
+                    selectStudentForRule(ruleId);
+                }
+            });
+            
+            // 绑定快速积分模态框事件
+            document.getElementById('quick-point-cancel').addEventListener('click', function() {
+                document.getElementById('quick-point-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('quick-point-confirm').addEventListener('click', function() {
+                applyQuickPoints();
+            });
+            
+            // 自定义积分切换
+            document.getElementById('quick-custom-point').addEventListener('click', function() {
+                const customInput = document.getElementById('custom-point-input');
+                customInput.classList.toggle('hidden');
+                if (!customInput.classList.contains('hidden')) {
+                    document.getElementById('quick-point-rules').classList.add('hidden');
+                } else {
+                    document.getElementById('quick-point-rules').classList.remove('hidden');
+                }
+            });
+            
+            // 自定义积分加减按钮
+            document.getElementById('custom-points-minus').addEventListener('click', function() {
+                const input = document.getElementById('custom-points-value');
+                input.value = -Math.abs(parseInt(input.value) || 1);
+            });
+            
+            document.getElementById('custom-points-plus').addEventListener('click', function() {
+                const input = document.getElementById('custom-points-value');
+                input.value = Math.abs(parseInt(input.value) || 1);
+            });
+        }
+        
+        // 小组筛选选项填充
+        function populateGroupFilter() {
+            const groupFilter = document.getElementById('quick-group-filter');
+            const groups = loadData('app_groups');
+            
+            // 清空现有选项（除了第一个"所有小组"）
+            while (groupFilter.options.length > 1) {
+                groupFilter.remove(1);
+            }
+            
+            // 添加小组选项
+            groups.forEach(group => {
+                const option = new Option(group.name, group.id);
+                groupFilter.add(option);
+            });
+        }
+        
+        // 筛选学生积分表格
+        function filterStudentPointsTable(searchTerm, groupId) {
+            const tableBody = document.getElementById('student-points-table');
+            const students = loadData('app_students');
+            const groups = loadData('app_groups');
+            
+            // 清空表格
+            tableBody.innerHTML = '';
+            
+            // 筛选学生
+            let filteredStudents = students;
+            
+            // 根据搜索词筛选
+            if (searchTerm) {
+                filteredStudents = filteredStudents.filter(student => 
+                    student.name.includes(searchTerm) || 
+                    student.studentId.includes(searchTerm)
+                );
+            }
+            
+            // 根据小组筛选
+            if (groupId) {
+                filteredStudents = filteredStudents.filter(student => student.groupId === groupId);
+            }
+            
+            if (filteredStudents.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">未找到匹配的学生</td></tr>';
+                return;
+            }
+            
+            // 创建学生行
+            filteredStudents.forEach(student => {
+                const groupName = student.groupId 
+                    ? groups.find(g => g.id === student.groupId)?.name || '未分组' 
+                    : '未分组';
+                
+                const totalPoints = student.totalPoints || 0;
+                const pointsClass = totalPoints >= 0 ? 'text-green-600' : 'text-red-600';
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-neutral transition-colors';
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <div class="font-medium">${student.name}</div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600">${student.studentId}</td>
+                    <td class="px-4 py-3 text-gray-600">${groupName}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="${pointsClass} font-medium">${totalPoints}</span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button class="quick-minus-btn bg-red-100 text-red-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-200" data-id="${student.id}">
+                                <i class="material-icons" style="font-size: 16px;">remove</i>
+                            </button>
+                            <button class="quick-add-btn bg-green-100 text-green-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-green-200" data-id="${student.id}">
+                                <i class="material-icons" style="font-size: 16px;">add</i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <button class="custom-point-btn bg-primary text-white px-2 py-1 rounded hover:bg-primary-dark transition-colors" data-id="${student.id}">
+                            详细操作
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // 重新绑定按钮事件
+            document.querySelectorAll('.quick-minus-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    quickAddPoints(studentId, -1);
+                });
+            });
+            
+            document.querySelectorAll('.quick-add-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    quickAddPoints(studentId, 1);
+                });
+            });
+            
+            document.querySelectorAll('.custom-point-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    openQuickPointModal(studentId);
+                });
+            });
+        }
+        
+        // 为学生快速加减分（不需要选择积分规则，使用"快速操作"规则）
+        function quickAddPoints(studentId, points) {
+            const students = loadData('app_students');
+            const student = students.find(s => s.id === studentId);
+            
+            if (!student) {
+                alert('找不到该学生');
+                return;
+            }
+            
+            // 获取或创建"快速操作"积分规则
+            let quickRule = null;
+            const rules = loadData('app_pointRules');
+            quickRule = rules.find(r => r.name === '快速操作');
+            
+            if (!quickRule) {
+                // 创建快速操作规则
+                const now = new Date().toISOString();
+                quickRule = {
+                    id: generateId(),
+                    name: '快速操作',
+                    points: 0, // 这个值会在记录时被覆盖
+                    description: '快速加减分操作',
+                    createdAt: now,
+                    updatedAt: now
+                };
+                rules.push(quickRule);
+                saveData('app_pointRules', rules);
+            }
+            
+            // 创建积分记录
+            const pointLogs = loadData('app_pointLogs');
+            const now = new Date().toISOString();
+            
+            const newLog = {
+                id: generateId(),
+                studentId: studentId,
+                pointRuleId: quickRule.id,
+                points: points,
+                reason: points > 0 ? '快速加分' : '快速减分',
+                createdAt: now
+            };
+            
+            pointLogs.push(newLog);
+            
+            // 更新学生总积分
+            const studentIndex = students.findIndex(s => s.id === studentId);
+            if (studentIndex !== -1) {
+                students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + points;
+            }
+            
+            // 保存到localStorage
+            saveData('app_pointLogs', pointLogs);
+            saveData('app_students', students);
+            
+            // 刷新学生表格和积分记录
+            initStudentPointsTable();
+            loadRecentPointsLogs();
+            updateDashboardStats();
+        }
+        
+        // 进入规则选择学生模式
+        function selectStudentForRule(ruleId) {
+            const rules = loadData('app_pointRules');
+            const rule = rules.find(r => r.id === ruleId);
+            
+            if (!rule) {
+                alert('找不到该积分规则');
+                return;
+            }
+            
+            // 高亮显示选中的规则按钮
+            document.querySelectorAll('.rule-quick-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-primary');
+                if (btn.getAttribute('data-rule-id') === ruleId) {
+                    btn.classList.add('ring-2', 'ring-primary');
+                }
+            });
+            
+            // 提示用户选择学生
+            alert(`已选择"${rule.name}"规则，请在下方列表中点击要操作的学生`);
+            
+            // 修改学生行的点击事件，点击整行应用规则
+            const tableRows = document.querySelectorAll('#student-points-table tr');
+            tableRows.forEach(row => {
+                // 找到详细操作按钮，获取学生ID
+                const detailBtn = row.querySelector('.custom-point-btn');
+                if (!detailBtn) return;
+                
+                const studentId = detailBtn.getAttribute('data-id');
+                
+                // 修改行样式为可点击
+                row.classList.add('cursor-pointer', 'bg-yellow-50');
+                
+                // 添加一次性点击事件
+                const clickHandler = function() {
+                    // 应用积分规则
+                    applyRuleToStudent(studentId, ruleId);
+                    
+                    // 移除所有行的选择模式样式和点击事件
+                    tableRows.forEach(r => {
+                        r.classList.remove('cursor-pointer', 'bg-yellow-50');
+                        r.removeEventListener('click', clickHandler);
+                    });
+                    
+                    // 移除规则按钮高亮
+                    document.querySelectorAll('.rule-quick-btn').forEach(btn => {
+                        btn.classList.remove('ring-2', 'ring-primary');
+                    });
+                };
+                
+                row.addEventListener('click', clickHandler);
+            });
+        }
+        
+        // 将规则应用于学生
+        function applyRuleToStudent(studentId, ruleId) {
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            const student = students.find(s => s.id === studentId);
+            const rule = rules.find(r => r.id === ruleId);
+            
+            if (!student || !rule) {
+                alert('找不到学生或积分规则');
+                return;
+            }
+            
+            // 创建积分记录
+            const pointLogs = loadData('app_pointLogs');
+            const now = new Date().toISOString();
+            
+            const newLog = {
+                id: generateId(),
+                studentId: studentId,
+                pointRuleId: ruleId,
+                points: rule.points,
+                reason: '',
+                createdAt: now
+            };
+            
+            pointLogs.push(newLog);
+            
+            // 更新学生总积分
+            const studentIndex = students.findIndex(s => s.id === studentId);
+            if (studentIndex !== -1) {
+                students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + parseInt(rule.points);
+            }
+            
+            // 保存到localStorage
+            saveData('app_pointLogs', pointLogs);
+            saveData('app_students', students);
+            
+            // 刷新学生表格和积分记录
+            initStudentPointsTable();
+            loadRecentPointsLogs();
+            updateDashboardStats();
+            
+            // 提示用户
+            const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
+            alert(`已为学生"${student.name}"${parseInt(rule.points) >= 0 ? '增加' : '扣除'}积分: ${rule.name} (${pointsSign}${rule.points})`);
+        }
+        
+        // 打开快速积分操作模态框
+        function openQuickPointModal(studentId) {
+            const modal = document.getElementById('quick-point-modal');
+            const students = loadData('app_students');
+            const rules = loadData('app_pointRules');
+            
+            const student = students.find(s => s.id === studentId);
+            if (!student) {
+                alert('找不到该学生');
+                return;
+            }
+            
+            // 填充学生信息
+            document.getElementById('quick-point-student-name').textContent = student.name;
+            document.getElementById('quick-point-student-id').textContent = student.studentId;
+            document.getElementById('quick-point-current-points').textContent = student.totalPoints || 0;
+            
+            // 清空积分规则选择区域
+            const rulesContainer = document.getElementById('quick-point-rules');
+            rulesContainer.innerHTML = '';
+            
+            // 填充积分规则选项
+            rules.forEach(rule => {
+                const pointsValue = parseInt(rule.points);
+                const btnClass = pointsValue >= 0 ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-red-100 text-red-600 hover:bg-red-200';
+                const pointsSign = pointsValue >= 0 ? '+' : '';
+                
+                const btn = document.createElement('button');
+                btn.className = `modal-rule-btn px-3 py-2 rounded border ${btnClass} text-sm`;
+                btn.setAttribute('data-rule-id', rule.id);
+                btn.innerHTML = `${rule.name}<br><span class="font-medium">${pointsSign}${rule.points}</span>`;
+                
+                rulesContainer.appendChild(btn);
+            });
+            
+            // 绑定规则选择按钮事件
+            document.querySelectorAll('.modal-rule-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的选中状态
+                    document.querySelectorAll('.modal-rule-btn').forEach(b => b.classList.remove('ring-2', 'ring-primary'));
+                    // 添加当前按钮的选中状态
+                    this.classList.add('ring-2', 'ring-primary');
+                });
+            });
+            
+            // 重置模态框状态
+            document.getElementById('custom-point-input').classList.add('hidden');
+            document.getElementById('quick-point-rules').classList.remove('hidden');
+            document.getElementById('custom-points-value').value = 1;
+            document.getElementById('quick-point-reason').value = '';
+            
+            // 保存当前学生ID到模态框
+            modal.setAttribute('data-student-id', studentId);
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+        
+        // 应用快速积分
+        function applyQuickPoints() {
+            const modal = document.getElementById('quick-point-modal');
+            const studentId = modal.getAttribute('data-student-id');
+            const reason = document.getElementById('quick-point-reason').value.trim();
+            
+            const students = loadData('app_students');
+            const student = students.find(s => s.id === studentId);
+            
+            if (!student) {
+                alert('找不到该学生');
+                return;
+            }
+            
+            // 判断是使用规则还是自定义积分
+            let ruleId = null;
+            let points = 0;
+            let ruleName = '';
+            
+            if (document.getElementById('custom-point-input').classList.contains('hidden')) {
+                // 使用规则
+                const selectedRule = document.querySelector('.modal-rule-btn.ring-2');
+                if (!selectedRule) {
+                    alert('请选择积分规则或使用自定义积分');
+                    return;
+                }
+                
+                ruleId = selectedRule.getAttribute('data-rule-id');
+                const rules = loadData('app_pointRules');
+                const rule = rules.find(r => r.id === ruleId);
+                
+                if (!rule) {
+                    alert('找不到该积分规则');
+                    return;
+                }
+                
+                points = parseInt(rule.points);
+                ruleName = rule.name;
+            } else {
+                // 使用自定义积分
+                points = parseInt(document.getElementById('custom-points-value').value);
+                
+                if (isNaN(points) || points === 0) {
+                    alert('请输入有效的积分值');
+                    return;
+                }
+                
+                // 获取或创建"自定义积分"规则
+                let customRule = null;
+                const rules = loadData('app_pointRules');
+                customRule = rules.find(r => r.name === '自定义积分');
+                
+                if (!customRule) {
+                    // 创建自定义积分规则
+                    const now = new Date().toISOString();
+                    customRule = {
+                        id: generateId(),
+                        name: '自定义积分',
+                        points: 0, // 这个值会在记录时被覆盖
+                        description: '自定义加减分操作',
+                        createdAt: now,
+                        updatedAt: now
+                    };
+                    rules.push(customRule);
+                    saveData('app_pointRules', rules);
+                }
+                
+                ruleId = customRule.id;
+                ruleName = '自定义积分';
+            }
+            
+            // 创建积分记录
+            const pointLogs = loadData('app_pointLogs');
+            const now = new Date().toISOString();
+            
+            const newLog = {
+                id: generateId(),
+                studentId: studentId,
+                pointRuleId: ruleId,
+                points: points,
+                reason: reason,
+                createdAt: now
+            };
+            
+            pointLogs.push(newLog);
+            
+            // 更新学生总积分
+            const studentIndex = students.findIndex(s => s.id === studentId);
+            if (studentIndex !== -1) {
+                students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + points;
+            }
+            
+            // 保存到localStorage
+            saveData('app_pointLogs', pointLogs);
+            saveData('app_students', students);
+            
+            // 关闭模态框
+            modal.classList.add('hidden');
+            
+            // 刷新学生表格和积分记录
+            initStudentPointsTable();
+            loadRecentPointsLogs();
+            updateDashboardStats();
+            
+            // 提示用户
+            const pointsSign = points >= 0 ? '+' : '';
+            alert(`已为学生"${student.name}"${points >= 0 ? '增加' : '扣除'}积分: ${ruleName} (${pointsSign}${points})`);
         }
     </script>
 </body>
