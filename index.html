@@ -3087,7 +3087,8 @@ function initializePages() {
             console.log("立即关闭导入弹窗...");
             const importModal = document.getElementById('import-modal');
             importModal.classList.add('hidden');
-            importModal.style.display = 'none';
+            // 移除下面的内联样式设置，仅使用CSS类控制显示/隐藏
+            // importModal.style.display = 'none';
             
             // 处理可能的编码问题
             let processedData = csvData;
