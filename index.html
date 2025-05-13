@@ -3778,12 +3778,20 @@ function initializePages() {
                 // 关闭模态框
                 document.getElementById('group-point-modal').classList.add('hidden');
                 
-                // 刷新积分记录
-                renderRecentPointsLog();
+                // 此行可以删除，因为下面会调用正确的函数
+                // loadRecentPointsLogs();
+                
+                // 更新每个学生的积分显示，而不是刷新整个表格
+                groupStudents.forEach(student => {
+                    updateStudentPointsInTable(student.id);
+                });
+                
+                // 刷新积分记录和仪表盘统计
+                loadRecentPointsLogs();
+                updateDashboardStats();
                 
                 // 提示成功
                 alert(`已为小组 ${group.name} 的 ${groupStudents.length} 名学生${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
-                refreshAllMainViews();
             } finally {
                 // 确保处理完成后重置标志，无论成功还是失败
                 setTimeout(function() {
@@ -5030,8 +5038,10 @@ function initializePages() {
             saveData('app_pointLogs', pointLogs);
             saveData('app_students', students);
             
-            // 刷新学生表格和积分记录
-            initStudentPointsTable();
+            // 只更新当前学生的积分显示，而不是刷新整个表格
+            updateStudentPointsInTable(studentId);
+            
+            // 刷新积分记录和仪表盘统计
             loadRecentPointsLogs();
             updateDashboardStats();
             
@@ -5131,8 +5141,10 @@ function initializePages() {
             saveData('app_pointLogs', pointLogs);
             saveData('app_students', students);
             
-            // 刷新学生表格和积分记录
-            initStudentPointsTable();
+            // 只更新当前学生的积分显示，而不是刷新整个表格
+            updateStudentPointsInTable(studentId);
+            
+            // 刷新积分记录和仪表盘统计
             loadRecentPointsLogs();
             updateDashboardStats();
             
@@ -5301,8 +5313,10 @@ function initializePages() {
             // 关闭模态框
             modal.classList.add('hidden');
             
-            // 刷新学生表格和积分记录
-            initStudentPointsTable();
+            // 只更新当前学生的积分显示，而不是刷新整个表格
+            updateStudentPointsInTable(studentId);
+            
+            // 刷新积分记录和仪表盘统计
             loadRecentPointsLogs();
             updateDashboardStats();
             
@@ -5372,6 +5386,26 @@ function initializePages() {
             // 激励兑换页面刷新
             renderRewardList();
             renderExchangeHistory();
+        }
+        
+        // 只更新表格中特定学生的积分信息
+        function updateStudentPointsInTable(studentId) {
+            const students = loadData('app_students');
+            const student = students.find(s => s.id === studentId);
+            
+            if (!student) return;
+            
+            // 查找对应的行元素
+            const row = document.querySelector(`#student-points-table .custom-point-btn[data-id="${studentId}"]`)?.closest('tr');
+            if (!row) return;
+            
+            // 更新积分显示
+            const totalPoints = student.totalPoints || 0;
+            const pointsCell = row.querySelector('td:nth-child(4)');
+            if (pointsCell) {
+                const pointsClass = totalPoints >= 0 ? 'text-green-600' : 'text-red-600';
+                pointsCell.innerHTML = `<span class="${pointsClass} font-medium">${totalPoints}</span>`;
+            }
         }
     </script>
 </body>
