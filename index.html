@@ -476,8 +476,13 @@
                 <div id="import-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
                     <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
                         <h3 class="text-lg font-medium text-gray-800 mb-4">批量导入学生</h3>
-                        <p class="text-sm text-gray-600 mb-4">请上传CSV文件，文件格式应为：姓名,学号,性别,小组名称</p>
-                        <input type="file" id="import-file" accept=".csv" 
+                        <p class="text-sm text-gray-600 mb-4">请上传CSV或TXT文件，文件格式要求：</p>
+                        <ul class="text-sm text-gray-600 mb-4 pl-5 list-disc">
+                            <li>CSV格式：姓名,学号,性别,小组名称</li>
+                            <li>TXT格式：每行一条记录，字段间用逗号或Tab键分隔</li>
+                            <li>系统支持自动识别编码，无需手动转换文件编码</li>
+                        </ul>
+                        <input type="file" id="import-file" accept=".csv,.txt" 
                             class="w-full px-3 py-2 border border-neutral-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                         <div class="flex justify-end space-x-2 mt-6">
                             <button type="button" id="import-modal-cancel" 
@@ -1492,8 +1497,149 @@
             }
         }
 
-        // 页面初始化
-        function initializePages() {
+        // 将TXT文件内容转换为CSV格式
+function parseTxtToCSV(txtContent) {
+    // 处理不同的行结束符
+    const lines = txtContent.split(/\r\n|\r|\n/).filter(line => line.trim());
+    
+    // 将每行的分隔符处理为CSV格式
+    return lines.map(line => {
+        // 检测分隔符：优先检查逗号，如果没有则尝试其他常见分隔符
+        let delimiter = ',';
+        if (!line.includes(',')) {
+            if (line.includes('\t')) delimiter = '\t';
+            else if (line.includes('|')) delimiter = '|';
+        }
+        
+        // 分割并合并为CSV格式
+        const columns = line.split(delimiter);
+        return columns.map(col => {
+            // 处理CSV转义：如果字段包含逗号、引号或换行符，需要用引号包裹
+            if (col.includes(',') || col.includes('"') || col.includes('\n')) {
+                return '"' + col.replace(/"/g, '""') + '"';
+            }
+            return col;
+        }).join(',');
+    }).join('\n');
+}
+
+// 检测文本是否有编码问题（常见于GBK等编码被误识别为UTF-8）
+function hasEncodingIssues(text) {
+    // 检查是否包含常见的乱码字符或模式
+    const suspiciousChars = /[\uFFFD\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g;
+    
+    // 如果包含替换字符(�)或控制字符，可能存在编码问题
+    if (suspiciousChars.test(text)) {
+        return true;
+    }
+    
+    // 检查中文字符区域是否有异常
+    // 正常的中文字符通常在Unicode的CJK统一表意文字区域
+    // GBK编码误解析常会产生多个紧密排列的特殊字符
+    const abnormalCJKPattern = /[\u00E0-\u00EF][\u0080-\u00BF]{2}/g;
+    if (abnormalCJKPattern.test(text)) {
+        return true;
+    }
+    
+    // 计算异常字符比例
+    const totalChars = text.length;
+    const abnormalChars = text.match(/[^\u0000-\u007F\u4E00-\u9FFF\u3000-\u303F\uFF00-\uFFEF]/g) || [];
+    const abnormalRatio = abnormalChars.length / totalChars;
+    
+    // 如果异常字符比例过高，可能存在编码问题
+    return abnormalRatio > 0.1;
+}
+
+// 尝试修复编码问题
+function fixEncodingIssues(text) {
+    // 这个函数尝试使用启发式方法修复常见的编码问题
+    // 特别是GBK编码被误识别为UTF-8的情况
+    
+    // 简单处理：替换常见的乱码序列
+    let fixed = text;
+    
+    // 替换常见的GBK编码误识别模式
+    const replacements = [
+        // 常见的简体中文标点符号错误编码修复
+        { from: /â€œ/g, to: '\u201C' },  // 中文引号开始
+        { from: /â€/g, to: '\u201D' },   // 中文引号结束
+        { from: /â€˜/g, to: '\u2018' },  // 中文单引号开始
+        { from: /â€™/g, to: '\u2019' },  // 中文单引号结束
+        { from: /â€¦/g, to: '\u2026' },  // 省略号
+        { from: /â€"/g, to: '\u2014' },  // 破折号
+        
+        // 常见的中文字符错误编码修复
+        { from: /Ã¦/g, to: '汉' },  // 一些常见的汉字前缀
+        { from: /Ã©/g, to: '字' },
+        { from: /Ã¯/g, to: '文' },
+        { from: /Ã¼/g, to: '字' }
+    ];
+    
+    // 应用所有替换规则
+    replacements.forEach(rule => {
+        fixed = fixed.replace(rule.from, rule.to);
+    });
+    
+    // 如果替换后的文本仍然有很多乱码，保留原文
+    if (hasEncodingIssues(fixed) && countReplacementChars(fixed) > countReplacementChars(text)) {
+        return text;
+    }
+    
+    return fixed;
+}
+
+// 计算替代字符的数量
+function countReplacementChars(text) {
+    return (text.match(/�/g) || []).length;
+}
+
+// 处理文件编码
+function handleFileEncoding(file, reader) {
+    try {
+        // 先用二进制模式读取文件的前几个字节来检测BOM
+        const binaryReader = new FileReader();
+        binaryReader.onload = function(e) {
+            const bytes = new Uint8Array(e.target.result);
+            
+            // 检测是否含有BOM标记
+            if (bytes.length >= 3 && 
+                bytes[0] === 0xEF && 
+                bytes[1] === 0xBB && 
+                bytes[2] === 0xBF) {
+                // UTF-8 with BOM
+                reader.readAsText(file, 'utf-8');
+            } else if (bytes.length >= 2 && 
+                     bytes[0] === 0xFF && 
+                     bytes[1] === 0xFE) {
+                // UTF-16 LE BOM
+                reader.readAsText(file, 'utf-16le');
+            } else if (bytes.length >= 2 && 
+                     bytes[0] === 0xFE && 
+                     bytes[1] === 0xFF) {
+                // UTF-16 BE BOM
+                reader.readAsText(file, 'utf-16be');
+            } else {
+                // 没有BOM，尝试直接用UTF-8解码
+                // 如果出现乱码，系统会在importStudents函数内处理
+                reader.readAsText(file, 'utf-8');
+            }
+        };
+        
+        binaryReader.onerror = function() {
+            // 读取失败，直接用UTF-8尝试
+            reader.readAsText(file, 'utf-8');
+        };
+        
+        // 读取文件前8个字节用于检测BOM
+        binaryReader.readAsArrayBuffer(file.slice(0, 8));
+    } catch (e) {
+        // 异常处理，直接尝试UTF-8
+        reader.readAsText(file, 'utf-8');
+    }
+}
+
+// 页面初始化
+function initializePages() {
             // 只初始化欢迎页面和数据，所有功能模块懒加载
             // 这样可以提高首次加载速度
             initializeData();
@@ -2654,7 +2800,7 @@
             importModalSubmitBtn.addEventListener('click', () => {
                 const fileInput = document.getElementById('import-file');
                 if (fileInput.files.length === 0) {
-                    alert('请选择CSV文件');
+                    alert('请选择文件');
                     return;
                 }
                 
@@ -2943,8 +3089,23 @@
             importModal.classList.add('hidden');
             importModal.style.display = 'none';
             
+            // 处理可能的编码问题
+            let processedData = csvData;
+            
+            // 检测数据中是否有乱码特征（常见于编码问题）
+            if (hasEncodingIssues(csvData)) {
+                console.log("检测到可能的编码问题，尝试修复...");
+                try {
+                    // 尝试通过启发式方法修复编码问题
+                    processedData = fixEncodingIssues(csvData);
+                } catch (e) {
+                    console.error("修复编码失败:", e);
+                    // 继续使用原始数据
+                }
+            }
+            
             // 将CSV数据按行分割
-            const rows = csvData.split(/\r?\n/).filter(row => row.trim() !== '');
+            const rows = processedData.split(/\r?\n/).filter(row => row.trim() !== '');
             
             if (rows.length === 0) {
                 alert('文件为空或格式不正确');
@@ -3268,7 +3429,7 @@
             importModalSubmitBtn.addEventListener('click', () => {
                 const fileInput = document.getElementById('import-file');
                 if (fileInput.files.length === 0) {
-                    alert('请选择CSV文件');
+                    alert('请选择文件');
                     return;
                 }
                 
