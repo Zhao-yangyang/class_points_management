@@ -303,7 +303,12 @@
                         
                         <!-- 快速积分规则选择 -->
                         <div class="mb-4 p-3 bg-neutral rounded-lg">
-                            <h3 class="text-sm font-medium text-gray-700 mb-2">快速积分规则</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-sm font-medium text-gray-700">快速积分规则</h3>
+                                <button id="cancel-rule-selection" class="hidden text-xs text-red-500 hover:text-red-700">
+                                    取消选择
+                                </button>
+                            </div>
                             <div id="quick-rule-buttons" class="flex flex-wrap gap-2">
                                 <!-- 积分规则按钮将通过JavaScript动态生成 -->
                                 <div class="animate-pulse h-8 w-20 bg-gray-200 rounded-full"></div>
@@ -497,6 +502,54 @@
                     </div>
                 </div>
                 
+                <!-- 导出格式选择模态框 -->
+                <div id="export-format-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden" style="background-color: rgba(0, 0, 0, 0.4);">
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">选择导出格式</h3>
+                        <p class="text-sm text-gray-600 mb-4">请选择要导出的文件格式：</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="radio" id="format-csv" name="export-format" value="csv" checked 
+                                    class="mr-3 h-4 w-4 text-primary focus:ring-primary">
+                                <label for="format-csv" class="flex-1">
+                                    <div class="font-medium text-gray-800">CSV格式</div>
+                                    <div class="text-xs text-gray-500">适用于Excel、Numbers等电子表格软件</div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="radio" id="format-txt" name="export-format" value="txt" 
+                                    class="mr-3 h-4 w-4 text-primary focus:ring-primary">
+                                <label for="format-txt" class="flex-1">
+                                    <div class="font-medium text-gray-800">TXT格式</div>
+                                    <div class="text-xs text-gray-500">使用逗号分隔符，与导入格式保持一致</div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="radio" id="format-json" name="export-format" value="json" 
+                                    class="mr-3 h-4 w-4 text-primary focus:ring-primary">
+                                <label for="format-json" class="flex-1">
+                                    <div class="font-medium text-gray-800">JSON格式</div>
+                                    <div class="text-xs text-gray-500">包含完整数据结构，适用于开发者或数据分析</div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-2 mt-6">
+                            <button type="button" id="export-format-cancel" 
+                                class="btn btn-outline">
+                                取消
+                            </button>
+                            <button type="button" id="export-format-submit" 
+                                class="btn btn-primary">
+                                确认导出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 功能菜单 -->
                 <div class="flex justify-end mt-4 gap-2">
                     <button id="import-students-btn" class="btn btn-accent btn-icon">
@@ -510,6 +563,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
                         导出学生
+                    </button>
+                    <button id="export-points-btn" class="btn btn-accent btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        导出积分记录
                     </button>
                 </div>
             </div>
@@ -1142,7 +1201,24 @@
         // 保存数据到localStorage
         function saveData(key, data) {
             try {
+                // 更新内存缓存
+                if (key === 'app_students') {
+                    window._cachedStudents = data;
+                } else if (key === 'app_groups') {
+                    window._cachedGroups = data;
+                }
+                
+                // 写入localStorage
                 localStorage.setItem(key, JSON.stringify(data));
+                
+                // 如果正在保存学生或小组数据，且为空数组，相当于清除，设置重置标记
+                if ((key === 'app_students' || key === 'app_groups') && 
+                    Array.isArray(data) && data.length === 0 && 
+                    !localStorage.getItem('app_system_reset')) {
+                    localStorage.setItem('app_system_reset', new Date().toISOString());
+                    console.log("检测到空数据保存，设置系统重置标记");
+                }
+                
                 return true;
             } catch (error) {
                 console.error('保存数据失败:', error);
@@ -1154,8 +1230,60 @@
         // 从localStorage获取数据
         function loadData(key, defaultValue = []) {
             try {
+                // 优先检查系统重置标记
+                if (key === 'app_students' || key === 'app_groups') {
+                    const resetMark = localStorage.getItem('app_system_reset');
+                    if (resetMark) {
+                        console.log(`检测到系统重置标记，"${key}"返回空数据`);
+                        
+                        // 如果系统被重置过于久远（超过30分钟），自动清除重置标记
+                        const resetTime = new Date(resetMark).getTime();
+                        const now = new Date().getTime();
+                        const thirtyMinutes = 30 * 60 * 1000;
+                        
+                        if (now - resetTime > thirtyMinutes) {
+                            console.log("重置标记已超过30分钟，自动清除");
+                            localStorage.removeItem('app_system_reset');
+                            // 继续下面的正常数据加载流程
+                        } else {
+                            // 如果系统被重置，学生和小组数据直接返回空
+                            if (key === 'app_students' && window._cachedStudents !== undefined) {
+                                return window._cachedStudents;
+                            }
+                            if (key === 'app_groups' && window._cachedGroups !== undefined) {
+                                return window._cachedGroups;
+                            }
+                            // 初始化空数组作为缓存
+                            if (key === 'app_students') {
+                                window._cachedStudents = [];
+                            } else if (key === 'app_groups') {
+                                window._cachedGroups = [];
+                            }
+                            return [];
+                        }
+                    }
+                }
+                
+                // 检查缓存
+                if (key === 'app_students' && window._cachedStudents !== undefined) {
+                    return window._cachedStudents;
+                }
+                if (key === 'app_groups' && window._cachedGroups !== undefined) {
+                    return window._cachedGroups;
+                }
+                
+                // 正常获取数据
                 const data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : defaultValue;
+                const parsedData = data ? JSON.parse(data) : defaultValue;
+                
+                // 缓存常用数据
+                if (key === 'app_students') {
+                    window._cachedStudents = parsedData;
+                } else if (key === 'app_groups') {
+                    window._cachedGroups = parsedData;
+                }
+                
+                return parsedData;
             } catch (error) {
                 console.error('读取数据失败:', error);
                 return defaultValue;
@@ -1663,15 +1791,45 @@ function initializePages() {
         
         // 初始化欢迎页面仪表盘
         function initWelcomePage() {
-            updateDashboardStats();
-            // 初始化学生积分表格
-            initStudentPointsTable();
-            // 初始化快速积分规则按钮
-            initQuickRuleButtons();
-            // 加载最近积分记录
-            loadRecentPointsLogs();
-            // 设置首页相关事件监听器
-            setupWelcomePageListeners();
+            try {
+                console.log("初始化首页...");
+                // 确保重置所有处理标志
+                window._processingImport = false;         // 导入处理标志
+                window._processingDialog = false;         // 弹窗处理标志
+                window._processingRuleApplication = false; // 规则应用处理标志
+                window._selectedRuleId = null;            // 选中的规则ID
+                
+                // 隐藏取消选择按钮（如果存在）
+                const cancelBtn = document.getElementById('cancel-rule-selection');
+                if (cancelBtn) {
+                    cancelBtn.classList.add('hidden');
+                }
+                
+                updateDashboardStats();
+                // 初始化学生积分表格
+                initStudentPointsTable();
+                // 初始化快速积分规则按钮
+                initQuickRuleButtons();
+                // 加载最近积分记录
+                loadRecentPointsLogs();
+                // 设置首页相关事件监听器
+                setupWelcomePageListeners();
+                
+                // 移除学生行的可点击样式
+                const tableRows = document.querySelectorAll('#student-points-table tr');
+                tableRows.forEach(row => {
+                    row.classList.remove('cursor-pointer', 'bg-yellow-50');
+                });
+                
+                console.log("首页初始化完成");
+            } catch (error) {
+                console.error("初始化首页时出错:", error);
+                // 确保即使出错也重置处理标志
+                window._processingImport = false;
+                window._processingDialog = false;
+                window._processingRuleApplication = false;
+                window._selectedRuleId = null;
+            }
             
             // 添加"查看全部"点击事件
             document.getElementById('more-logs-btn').addEventListener('click', () => {
@@ -2442,7 +2600,7 @@ function initializePages() {
             
             // 验证
             if (!name || isNaN(pointsCost) || isNaN(stock) || pointsCost < 1) {
-                alert('请填写完整的奖品信息，积分必须大于0');
+                showAlert('请填写完整的奖品信息，积分必须大于0');
                 return;
             }
             
@@ -2453,7 +2611,7 @@ function initializePages() {
             if (!currentEditRewardId) {
                 const rewardExists = rewards.some(r => r.name === name);
                 if (rewardExists) {
-                    alert(`奖品"${name}"已存在，请使用其他名称`);
+                    showAlert(`奖品"${name}"已存在，请使用其他名称`);
                     return;
                 }
             }
@@ -2530,7 +2688,7 @@ function initializePages() {
             
             // 验证
             if (!studentId || !rewardId || quantity < 1) {
-                alert('请选择学生、奖品，并确保数量大于0');
+                showAlert('请选择学生、奖品，并确保数量大于0');
                 return;
             }
             
@@ -2543,7 +2701,7 @@ function initializePages() {
             const reward = rewards.find(r => r.id === rewardId);
             
             if (!student || !reward) {
-                alert('所选学生或奖品不存在');
+                showAlert('所选学生或奖品不存在');
                 return;
             }
             
@@ -2609,9 +2767,130 @@ function initializePages() {
 
         // 初始化学生管理页面
         function initStudentsPage() {
-            renderStudentList();
-            renderGroupList();
-            setupStudentListeners();
+            console.log("初始化学生管理页面开始");
+            try {
+                // 确保页面元素已准备好（可能是在系统重置后首次访问）
+                if (document.getElementById('students-page')) {
+                    renderStudentList();
+                    renderGroupList();
+                    setupStudentListeners();
+                    // 设置统一的导入/导出监听器
+                    setupImportExportListeners();
+                    console.log("学生管理页面初始化完成");
+                } else {
+                    console.warn("学生管理页面元素不存在，初始化延迟");
+                    // 如果页面元素还没准备好，延迟一段时间再次尝试
+                    setTimeout(initStudentsPage, 100);
+                }
+            } catch (error) {
+                console.error("初始化学生管理页面时出错:", error);
+            }
+        }
+        
+        // 设置统一的导入/导出监听器
+        function setupImportExportListeners() {
+            try {
+                console.log("设置导入/导出监听器...");
+                
+                // 导入学生按钮
+                const importBtn = document.getElementById('import-students-btn');
+                if (importBtn) {
+                    // 先移除可能存在的事件监听器
+                    importBtn.onclick = null;
+                    importBtn.addEventListener('click', () => {
+                        // 确保处理标记被重置，允许新的导入
+                        window._processingImport = false;
+                        console.log("点击导入按钮，重置处理标记");
+                        
+                        const importModal = document.getElementById('import-modal');
+                        if (importModal) {
+                            importModal.classList.remove('hidden');
+                            // 确保文件输入框被清空
+                            const fileInput = document.getElementById('import-file');
+                            if (fileInput) {
+                                fileInput.value = '';
+                                console.log("清空文件输入框");
+                            }
+                        }
+                    });
+                }
+                
+                // 使用新的事件绑定函数设置导出相关按钮
+                setupExportButtonListeners();
+                
+                // 设置导出模态框的事件监听
+                setupExportModalListeners();
+                
+                // 导入模态框取消按钮
+                const importCancelBtn = document.getElementById('import-modal-cancel');
+                if (importCancelBtn) {
+                    importCancelBtn.onclick = null;
+                    importCancelBtn.addEventListener('click', () => {
+                        const importModal = document.getElementById('import-modal');
+                        if (importModal) {
+                            importModal.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                // 导入文件提交（防止重复绑定）
+                const importModalSubmitBtn = document.getElementById('import-modal-submit');
+                if (importModalSubmitBtn) {
+                    // 先移除可能存在的事件监听器
+                    importModalSubmitBtn.onclick = null;
+                    // 添加新的事件监听器
+                    importModalSubmitBtn.addEventListener('click', handleImportSubmit);
+                }
+                
+                console.log("导入/导出监听器设置完成");
+            } catch (error) {
+                console.error("设置导入/导出监听器时出错:", error);
+            }
+        }
+        
+        // 处理导入文件提交
+        function handleImportSubmit() {
+            const fileInput = document.getElementById('import-file');
+            if (fileInput.files.length === 0) {
+                showAlert('请选择文件');
+                // 确保重置处理标记，以便下次可以正常导入
+                window._processingImport = false;
+                return;
+            }
+            
+            // 注意：不在此处重置处理标记，正确的做法是在importStudents中设置处理标记
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            // 立即关闭导入弹窗
+            const importModal = document.getElementById('import-modal');
+            if (importModal) {
+                importModal.classList.add('hidden');
+            }
+            
+            reader.onload = (e) => {
+                const csvData = e.target.result;
+                // 将文件内容传递给importStudents处理
+                importStudents(csvData);
+                
+                // 在读取完成后清空文件输入框
+                console.log("清空文件输入框");
+                // 这里不需要立即清空，因为importStudents函数结束时会清空
+                // 如果这里清空，会导致importStudents中无法获取正确的fileInput
+            };
+            
+            reader.onerror = () => {
+                showAlert('读取文件失败');
+                window._processingImport = false; // 重置处理标记
+                if (fileInput) {
+                    fileInput.value = ''; // 清空文件输入框
+                }
+            };
+            
+            // 开始读取文件
+            console.log("开始读取导入文件...");
+            reader.readAsText(file);
         }
 
         // 渲染学生列表
@@ -2757,83 +3036,60 @@ function initializePages() {
 
         // 设置学生管理页面的事件监听器
         function setupStudentListeners() {
+            console.log("开始设置学生管理页面事件监听器");
+            
+            // 安全地添加事件监听器的辅助函数
+            function safeAddEventListener(elementId, eventType, handler) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.addEventListener(eventType, handler);
+                    return true;
+                } else {
+                    console.warn(`元素不存在，无法添加事件监听器: ${elementId}`);
+                    return false;
+                }
+            }
+            
             // 添加学生按钮
-            document.getElementById('add-student-btn').addEventListener('click', () => {
+            safeAddEventListener('add-student-btn', 'click', () => {
                 openStudentModal('add');
             });
             
             // 添加小组按钮
-            document.getElementById('add-group-btn').addEventListener('click', () => {
+            safeAddEventListener('add-group-btn', 'click', () => {
                 openGroupModal('add');
             });
             
             // 学生搜索
-            document.getElementById('student-search').addEventListener('input', (e) => {
+            safeAddEventListener('student-search', 'input', (e) => {
                 renderStudentList(e.target.value.trim());
             });
             
             // 学生模态框取消按钮
-            document.getElementById('student-modal-cancel').addEventListener('click', () => {
-                document.getElementById('student-modal').classList.add('hidden');
+            safeAddEventListener('student-modal-cancel', 'click', () => {
+                document.getElementById('student-modal')?.classList.add('hidden');
             });
             
             // 小组模态框取消按钮
-            document.getElementById('group-modal-cancel').addEventListener('click', () => {
-                document.getElementById('group-modal').classList.add('hidden');
+            safeAddEventListener('group-modal-cancel', 'click', () => {
+                document.getElementById('group-modal')?.classList.add('hidden');
             });
             
             // 学生表单提交
-            document.getElementById('student-form').addEventListener('submit', (e) => {
+            safeAddEventListener('student-form', 'submit', (e) => {
                 e.preventDefault();
                 saveStudent();
             });
             
             // 小组表单提交
-            document.getElementById('group-form').addEventListener('submit', (e) => {
+            safeAddEventListener('group-form', 'submit', (e) => {
                 e.preventDefault();
                 saveGroup();
             });
             
-            // 导入学生按钮
-            document.getElementById('import-students-btn').addEventListener('click', () => {
-                document.getElementById('import-modal').classList.remove('hidden');
-            });
+            console.log("完成设置学生管理页面事件监听器");
             
-            // 导出学生按钮
-            document.getElementById('export-students-btn').addEventListener('click', () => {
-                exportStudentsToCSV();
-            });
-            
-            // 导入模态框取消按钮
-            document.getElementById('import-modal-cancel').addEventListener('click', () => {
-                document.getElementById('import-modal').classList.add('hidden');
-            });
-            
-            // 导入文件提交（防止重复绑定）
-            const importModalSubmitBtn = document.getElementById('import-modal-submit');
-            importModalSubmitBtn.onclick = null;
-            importModalSubmitBtn.addEventListener('click', () => {
-                const fileInput = document.getElementById('import-file');
-                if (fileInput.files.length === 0) {
-                    alert('请选择文件');
-                    return;
-                }
-                
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = (e) => {
-                    const csvData = e.target.result;
-                    importStudents(csvData);
-                    fileInput.value = '';
-                };
-                
-                reader.onerror = () => {
-                    alert('读取文件失败');
-                };
-                
-                reader.readAsText(file);
-            });
+            // 注意：导入/导出相关的事件监听已在setupImportExportListeners函数中设置，此处不再重复绑定
         }
 
         // 打开学生模态框
@@ -2928,7 +3184,7 @@ function initializePages() {
             
             // 验证
             if (!name || !studentId) {
-                alert('请填写学生姓名和学号');
+                showAlert('请填写学生姓名和学号');
                 return;
             }
             
@@ -2939,7 +3195,7 @@ function initializePages() {
             if (!currentEditStudentId) {
                 const studentExists = students.some(s => s.studentId === studentId);
                 if (studentExists) {
-                    alert(`学号 ${studentId} 已存在，请使用其他学号`);
+                    showAlert(`学号 ${studentId} 已存在，请使用其他学号`);
                     return;
                 }
             }
@@ -3000,7 +3256,7 @@ function initializePages() {
             
             // 验证
             if (!name) {
-                alert('请填写小组名称');
+                showAlert('请填写小组名称');
                 return;
             }
             
@@ -3011,7 +3267,7 @@ function initializePages() {
             if (!currentEditGroupId) {
                 const groupExists = groups.some(g => g.name === name);
                 if (groupExists) {
-                    alert(`小组 ${name} 已存在，请使用其他名称`);
+                    showAlert(`小组 ${name} 已存在，请使用其他名称`);
                     return;
                 }
             }
@@ -3098,10 +3354,24 @@ function initializePages() {
 
         // 批量导入学生
         function importStudents(csvData) {
-            // 首先立即关闭弹窗，避免后续alert阻塞
-            console.log("立即关闭导入弹窗...");
-            const importModal = document.getElementById('import-modal');
-            importModal.classList.add('hidden');
+            console.log("导入状态检查:", window._processingImport);
+            // 检查导入标志，如果已经在处理，则阻止再次导入
+            if (window._processingImport === true) {
+                console.log("正在进行导入处理，请等待当前导入完成");
+                // 标记在导入过程中的特殊提示
+                window._insideImportProcess = true;
+                showAlert("正在进行导入处理，请等待当前导入完成");
+                window._insideImportProcess = false;
+                return;
+            }
+            
+            // 确保设置处理标志，防止并发导入
+            window._processingImport = true;
+            // 标记当前处于导入过程中，这样导入相关的提示不会被忽略
+            window._insideImportProcess = true;
+            console.log("设置导入标志为true");
+            
+            console.log("开始处理导入数据...");
             // 移除下面的内联样式设置，仅使用CSS类控制显示/隐藏
             // importModal.style.display = 'none';
             
@@ -3125,13 +3395,44 @@ function initializePages() {
             
             if (rows.length === 0) {
                 showAlert('文件为空或格式不正确');
+                // 重置处理标志
+                window._processingImport = false;
                 return;
+            }
+            
+            // 检查是否是在清除数据后的状态 - 多重检查
+            // 1. 检查localStorage中的重置标记
+            // 2. 检查内存中的重置标记
+            // 3. 检查学生数据是否为空
+            const systemResetMark = localStorage.getItem('app_system_reset');
+            const memoryResetMark = window._systemReset === true;
+            const emptyStudents = !localStorage.getItem('app_students') || loadData('app_students').length === 0;
+            
+            // 任一条件满足即认为是全新系统
+            // 设置强制判断为新系统，避免导入后再次导入时出现"已存在"的错误
+            // const freshSystem = systemResetMark || memoryResetMark || emptyStudents;
+            const freshSystem = true; // 强制将每次导入视为新系统，这样可以避免"学号已存在"的问题
+            
+            console.log("当前系统状态判断：", {
+                systemResetMark: systemResetMark ? true : false,
+                memoryResetMark: memoryResetMark,
+                emptyStudents: emptyStudents,
+                freshSystem: freshSystem
+            });
+
+            if (freshSystem) {
+                console.log("导入模式：全新导入（不检查重复学号）");
+            } else {
+                console.log("导入模式：追加导入（检查重复学号）");
             }
             
             const students = loadData('app_students');
             const groups = loadData('app_groups');
             const imported = [];
             const errors = [];
+            
+            // 记录所有出现的学号，用于检测文件内重复
+            const studentIdsInFile = new Set();
             
             // 处理每一行
             rows.forEach((row, index) => {
@@ -3153,10 +3454,19 @@ function initializePages() {
                 const gender = columns.length > 2 ? columns[2] : '未知';
                 const groupName = columns.length > 3 ? columns[3] : '';
                 
-                // 验证学号是否已存在
-                if (students.some(s => s.studentId === studentId)) {
-                    errors.push(`第${index + 1}行: 学号 ${studentId} 已存在`);
+                // 检查文件内学号是否重复
+                if (studentIdsInFile.has(studentId)) {
+                    errors.push(`第${index + 1}行: 学号 ${studentId} 在导入文件中重复`);
                     return;
+                }
+                studentIdsInFile.add(studentId);
+                
+                // 改进逻辑：始终检查文件内部学号重复，但忽略与已有学生的学号重复
+                if (!freshSystem && students.some(s => s.studentId === studentId)) {
+                    console.log(`学号重复检查忽略: ${studentId} (文件第${index + 1}行)`);
+                    // 不再将这视为错误，允许重新导入已有学号的学生
+                    // errors.push(`第${index + 1}行: 学号 ${studentId} 已存在`);
+                    // return;
                 }
                 
                 // 查找或创建小组
@@ -3178,20 +3488,46 @@ function initializePages() {
                     }
                 }
                 
-                // 创建新学生对象
-                const newStudent = {
-                    id: generateId(),
-                    name,
-                    studentId,
-                    gender,
-                    groupId,
-                    totalPoints: 0,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                };
+                // 检查是否已存在相同学号的学生
+                const existingStudentIndex = students.findIndex(s => s.studentId === studentId);
                 
-                students.push(newStudent);
-                imported.push(newStudent);
+                if (existingStudentIndex >= 0) {
+                    // 如果存在相同学号的学生，使用新数据更新该学生
+                    console.log(`更新已存在的学生信息: ${studentId} - ${name}`);
+                    
+                    // 保留原有积分和ID
+                    const originalPoints = students[existingStudentIndex].totalPoints || 0;
+                    const originalId = students[existingStudentIndex].id;
+                    
+                    // 更新学生信息，但保留原积分和ID
+                    students[existingStudentIndex] = {
+                        id: originalId, // 保留原ID
+                        name,
+                        studentId,
+                        gender,
+                        groupId,
+                        totalPoints: originalPoints, // 保留原积分
+                        createdAt: students[existingStudentIndex].createdAt, // 保留原创建时间
+                        updatedAt: new Date().toISOString() // 更新修改时间
+                    };
+                    
+                    imported.push(students[existingStudentIndex]);
+                } else {
+                    // 创建新学生对象
+                    const newStudent = {
+                        id: generateId(),
+                        name,
+                        studentId,
+                        gender,
+                        groupId,
+                        totalPoints: 0,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    students.push(newStudent);
+                    imported.push(newStudent);
+                }
             });
             
             // 保存更新后的数据
@@ -3205,11 +3541,25 @@ function initializePages() {
             if (imported.length > 0) {
                 msg += `导入成功，共导入 ${imported.length} 名学生。`;
             }
+            
+            // 始终显示错误记录，主要是文件内部重复学号的错误
             if (errors.length > 0) {
                 msg += `\n有 ${errors.length} 条错误记录:\n${errors.join('\n')}`;
             }
-            if (msg) showAlert(msg);
             
+            // 如果存在系统重置标记，移除它
+            if (systemResetMark) {
+                localStorage.removeItem('app_system_reset');
+                console.log("导入完成，已移除系统重置标记");
+            }
+            
+            // 同样移除内存中的重置标记，确保连续导入功能正常
+            if (memoryResetMark) {
+                window._systemReset = false;
+                console.log("导入完成，已重置内存重置标记");
+            }
+            
+            // 首先更新和刷新视图
             // 刷新学生列表
             renderStudentList();
             renderGroupList();
@@ -3220,11 +3570,36 @@ function initializePages() {
             loadRecentPointsLogs();
             initQuickRuleButtons(); // 刷新快速积分规则按钮
             populateGroupFilter(); // 刷新小组筛选下拉框
-            refreshAllMainViews();
+            
+            // 不再直接调用refreshAllMainViews()，避免引起showAlert的连锁调用
+            
+            // 显示导入结果消息
+            if (msg) {
+                console.log("显示导入结果消息");
+                // 使用特殊标记防止循环调用
+                window._showingImportAlert = true;
+                // 不再自动重新打开导入模态框，只显示导入结果
+                showAlert(msg, function() {
+                    console.log("导入结果显示完毕");
+                    window._showingImportAlert = false;
+                    // 移除自动重新打开导入模态框的逻辑
+                });
+            }
+            
+            // 完成导入处理，重置处理标志
+            console.log("导入处理完成，重置标志为false");
+            window._processingImport = false;
+            window._insideImportProcess = false; // 重置导入过程标记
+            
+            // 确保文件输入框被清空，以便下次导入
+            const fileInput = document.getElementById('import-file');
+            if (fileInput) {
+                fileInput.value = '';
+            }
         }
 
-        // 导出学生数据为CSV
-        function exportStudentsToCSV() {
+        // 导出学生数据（支持多种格式）
+        function exportStudents(format = 'csv') {
             const students = loadData('app_students');
             const groups = loadData('app_groups');
             
@@ -3233,15 +3608,274 @@ function initializePages() {
                 return;
             }
             
-            // 生成CSV内容
-            let csvContent = '姓名,学号,性别,小组\n';
+            let content = '';
+            let mimeType = '';
+            let fileExt = '';
             
-            students.forEach(student => {
-                const groupName = student.groupId 
-                    ? groups.find(g => g.id === student.groupId)?.name || '' 
-                    : '';
+            // 根据选择的格式生成不同内容
+            if (format === 'csv') {
+                // CSV格式
+                content = '姓名,学号,性别,小组,当前积分\n';
                 
-                csvContent += `${student.name},${student.studentId},${student.gender},${groupName}\n`;
+                students.forEach(student => {
+                    const groupName = student.groupId 
+                        ? groups.find(g => g.id === student.groupId)?.name || '' 
+                        : '';
+                    
+                    content += `${student.name},${student.studentId},${student.gender},${groupName},${student.totalPoints || 0}\n`;
+                });
+                
+                mimeType = 'text/csv;charset=utf-8;';
+                fileExt = 'csv';
+            } else if (format === 'txt') {
+                // TXT格式（采用逗号分隔，与导入保持一致）
+                content = '姓名,学号,性别,小组,当前积分\n';
+                
+                students.forEach(student => {
+                    const groupName = student.groupId 
+                        ? groups.find(g => g.id === student.groupId)?.name || '' 
+                        : '';
+                    
+                    content += `${student.name},${student.studentId},${student.gender},${groupName},${student.totalPoints || 0}\n`;
+                });
+                
+                mimeType = 'text/plain;charset=utf-8;';
+                fileExt = 'txt';
+            } else if (format === 'json') {
+                // JSON格式（完整数据，包括ID等）
+                const exportData = students.map(student => {
+                    const groupName = student.groupId 
+                        ? groups.find(g => g.id === student.groupId)?.name || '' 
+                        : '';
+                    
+                    return {
+                        ...student,
+                        groupName: groupName
+                    };
+                });
+                
+                content = JSON.stringify(exportData, null, 2);
+                mimeType = 'application/json;charset=utf-8;';
+                fileExt = 'json';
+            }
+            
+            // 创建Blob并下载
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `学生名单_${new Date().toISOString().split('T')[0]}.${fileExt}`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            
+            // 显示导出成功信息
+            showAlert(`已成功导出${students.length}名学生的数据（${format.toUpperCase()}格式）`);
+            
+            // 导出完成后，重新绑定事件监听器以确保下次点击有效
+            setTimeout(() => {
+                // 确保模态框已隐藏
+                const exportFormatModal = document.getElementById('export-format-modal');
+                if (exportFormatModal) {
+                    exportFormatModal.classList.add('hidden');
+                    console.log("确保导出格式选择模态框已隐藏");
+                }
+                
+                // 确保处理标志重置
+                window._processingDialog = false;
+                
+                // 重新设置导出按钮的事件监听
+                setupExportButtonListeners();
+            }, 100);
+        }
+        
+        // 兼容旧接口，默认导出CSV格式
+        function exportStudentsToCSV() {
+            exportStudents('csv');
+        }
+        
+        // 单独提取设置导出按钮监听器的函数，方便重用
+        function setupExportButtonListeners() {
+            // 导出学生按钮
+            const exportBtn = document.getElementById('export-students-btn');
+            if (exportBtn) {
+                // 先移除旧的事件监听器，避免多次绑定
+                exportBtn.removeEventListener('click', handleExportStudents);
+                
+                // 绑定新的事件
+                exportBtn.addEventListener('click', handleExportStudents);
+            }
+            
+            // 导出积分记录按钮
+            const exportPointsBtn = document.getElementById('export-points-btn');
+            if (exportPointsBtn) {
+                // 先移除旧的事件监听器，避免多次绑定
+                exportPointsBtn.removeEventListener('click', handleExportPoints);
+                
+                // 绑定新的事件
+                exportPointsBtn.addEventListener('click', handleExportPoints);
+            }
+            
+            // 导出学生按钮处理函数
+            function handleExportStudents(e) {
+                // 防止事件冒泡
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log("导出学生按钮被点击");
+                
+                // 打开导出格式选择模态框
+                const exportFormatModal = document.getElementById('export-format-modal');
+                if (exportFormatModal) {
+                    console.log("找到导出格式选择模态框，打开它");
+                    // 设置数据类型标记，用于区分导出学生还是积分记录
+                    window._exportDataType = 'students';
+                    exportFormatModal.classList.remove('hidden');
+                    
+                    // 确保CSV格式为默认选中
+                    const csvRadio = document.getElementById('format-csv');
+                    if (csvRadio) {
+                        csvRadio.checked = true;
+                    }
+                    
+                    // 设置模态框按钮的事件监听器
+                    setupExportModalListeners();
+                } else {
+                    console.log("找不到导出格式选择模态框，需要重新加载页面");
+                    // 在弹窗不存在的情况下提示用户刷新页面
+                    showAlert("导出功能出现错误，请刷新页面后重试。", function() {
+                        location.reload();
+                    });
+                }
+            }
+            
+            // 导出积分记录按钮处理函数
+            function handleExportPoints(e) {
+                // 防止事件冒泡
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log("导出积分记录按钮被点击");
+                
+                // 默认使用CSV导出积分记录
+                exportPointLogsToCSV();
+            }
+        }
+        
+        // 设置导出模态框按钮事件监听器
+        function setupExportModalListeners() {
+            // 导出格式选择模态框取消按钮
+            const exportFormatCancelBtn = document.getElementById('export-format-cancel');
+            if (exportFormatCancelBtn) {
+                // 先移除旧的事件监听器，避免多次绑定
+                exportFormatCancelBtn.removeEventListener('click', handleExportCancel);
+                
+                // 绑定新的事件监听
+                exportFormatCancelBtn.addEventListener('click', handleExportCancel);
+            }
+            
+            // 导出取消按钮处理函数
+            function handleExportCancel(e) {
+                // 防止事件冒泡
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log("导出取消按钮被点击");
+                
+                const exportFormatModal = document.getElementById('export-format-modal');
+                if (exportFormatModal) {
+                    // 使用classList.add添加hidden类，而不是移除元素
+                    exportFormatModal.classList.add('hidden');
+                    console.log("隐藏导出格式选择模态框（未移除）");
+                    
+                    // 确保处理标志重置
+                    window._processingDialog = false;
+                    
+                    // 关闭模态框后，重新设置导出按钮的事件监听器
+                    setTimeout(setupExportButtonListeners, 100);
+                } else {
+                    console.log("导出格式选择模态框不存在，无法关闭");
+                }
+            }
+            
+            // 导出格式选择模态框确认按钮
+            const exportFormatSubmitBtn = document.getElementById('export-format-submit');
+            if (exportFormatSubmitBtn) {
+                // 先移除旧的事件监听器，避免多次绑定
+                exportFormatSubmitBtn.removeEventListener('click', handleExportSubmit);
+                
+                // 绑定新的事件监听
+                exportFormatSubmitBtn.addEventListener('click', handleExportSubmit);
+            }
+            
+            // 导出确认按钮处理函数
+            function handleExportSubmit(e) {
+                // 防止事件冒泡
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log("导出确认按钮被点击");
+                
+                // 获取选择的格式
+                const formatRadios = document.getElementsByName('export-format');
+                let selectedFormat = 'csv'; // 默认CSV格式
+                
+                for (const radio of formatRadios) {
+                    if (radio.checked) {
+                        selectedFormat = radio.value;
+                        break;
+                    }
+                }
+                
+                // 关闭模态框（先隐藏再导出，避免导出过程可能引起的UI问题）
+                const exportFormatModal = document.getElementById('export-format-modal');
+                if (exportFormatModal) {
+                    // 使用classList.add添加hidden类，而不是移除元素
+                    exportFormatModal.classList.add('hidden');
+                    console.log("隐藏导出格式选择模态框（未移除）");
+                } else {
+                    console.log("导出格式选择模态框不存在，无法关闭");
+                }
+                
+                // 根据数据类型导出不同的内容（延迟执行，确保UI先更新）
+                setTimeout(() => {
+                    if (window._exportDataType === 'students') {
+                        exportStudents(selectedFormat);
+                    }
+                }, 50);
+            }
+        }
+        
+        // 导出积分记录为CSV
+        function exportPointLogsToCSV() {
+            // 获取所有积分记录（包括归档数据）
+            const allPointLogs = loadAllPointLogs();
+            const students = loadData('app_students');
+            const pointRules = loadData('app_pointRules');
+            
+            if (allPointLogs.length === 0) {
+                showAlert('没有积分记录可导出');
+                return;
+            }
+            
+            // 生成CSV内容
+            let csvContent = '学生姓名,学号,积分值,积分规则,备注,操作时间\n';
+            
+            allPointLogs.forEach(log => {
+                const student = students.find(s => s.id === log.studentId);
+                const rule = pointRules.find(r => r.id === log.pointRuleId);
+                
+                if (!student) return; // 跳过找不到学生的记录
+                
+                const studentName = student.name;
+                const studentId = student.studentId;
+                const points = log.points;
+                const ruleName = rule ? rule.name : '未知规则';
+                const comment = log.comment || '';
+                const createdAt = formatDate(log.createdAt);
+                
+                csvContent += `${studentName},${studentId},${points},${ruleName},${comment},${createdAt}\n`;
             });
             
             // 创建Blob并下载
@@ -3250,10 +3884,22 @@ function initializePages() {
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = `学生名单_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `积分记录_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             
             URL.revokeObjectURL(url);
+            
+            // 显示导出成功信息
+            showAlert(`已成功导出${allPointLogs.length}条积分记录`);
+            
+            // 导出完成后，重新绑定事件监听器以确保下次点击有效
+            setTimeout(() => {
+                // 确保处理标志重置
+                window._processingDialog = false;
+                
+                // 重新设置导出按钮的事件监听
+                setupExportButtonListeners();
+            }, 100);
         }
 
         // 积分管理功能
@@ -3279,8 +3925,8 @@ function initializePages() {
                 return;
             }
             
-            // 创建规则卡片
-            rules.forEach(rule => {
+            // 创建规则卡片，过滤掉"快速操作"
+            rules.filter(rule => rule.name !== '快速操作').forEach(rule => {
                 const ruleCard = document.createElement('div');
                 const pointsClass = parseInt(rule.points) >= 0 ? 'text-green-500' : 'text-red-500';
                 const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
@@ -3426,46 +4072,7 @@ function initializePages() {
                 document.getElementById('group-point-modal').classList.add('hidden');
             });
             
-            // 导入学生按钮
-            document.getElementById('import-students-btn').addEventListener('click', () => {
-                document.getElementById('import-modal').classList.remove('hidden');
-            });
-            
-            // 导出学生按钮
-            document.getElementById('export-students-btn').addEventListener('click', () => {
-                exportStudentsToCSV();
-            });
-            
-            // 导入模态框取消按钮
-            document.getElementById('import-modal-cancel').addEventListener('click', () => {
-                document.getElementById('import-modal').classList.add('hidden');
-            });
-            
-            // 导入文件提交（防止重复绑定）
-            const importModalSubmitBtn = document.getElementById('import-modal-submit');
-            importModalSubmitBtn.onclick = null;
-            importModalSubmitBtn.addEventListener('click', () => {
-                const fileInput = document.getElementById('import-file');
-                if (fileInput.files.length === 0) {
-                    alert('请选择文件');
-                    return;
-                }
-                
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = (e) => {
-                    const csvData = e.target.result;
-                    importStudents(csvData);
-                    fileInput.value = '';
-                };
-                
-                reader.onerror = () => {
-                    alert('读取文件失败');
-                };
-                
-                reader.readAsText(file);
-            });
+            // 导入/导出相关功能已移至setupImportExportListeners函数
         }
 
         // 打开积分规则模态框
@@ -3598,7 +4205,7 @@ function initializePages() {
             
             // 验证
             if (!name || isNaN(points)) {
-                alert('请填写规则名称和分值');
+                showAlert('请填写规则名称和分值');
                 return;
             }
             
@@ -3609,7 +4216,7 @@ function initializePages() {
             if (!currentEditRuleId) {
                 const ruleExists = rules.some(r => r.name === name);
                 if (ruleExists) {
-                    alert(`规则 ${name} 已存在，请使用其他名称`);
+                    showAlert(`规则 ${name} 已存在，请使用其他名称`);
                     return;
                 }
             }
@@ -3676,7 +4283,7 @@ function initializePages() {
             
             // 验证
             if (!studentId || !ruleId) {
-                alert('请选择学生和积分规则');
+                showAlert('请选择学生和积分规则');
                 return;
             }
             
@@ -3688,7 +4295,7 @@ function initializePages() {
             const rule = rules.find(r => r.id === ruleId);
             
             if (!student || !rule) {
-                alert('所选学生或规则不存在');
+                showAlert('所选学生或规则不存在');
                 return;
             }
             
@@ -3724,7 +4331,7 @@ function initializePages() {
             renderRecentPointsLog();
             
             // 提示成功
-            alert(`已为学生 ${student.name} ${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
+            showAlert(`已为学生 ${student.name} ${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
             refreshAllMainViews();
         }
 
@@ -3741,7 +4348,7 @@ function initializePages() {
             try {
                 // 验证
                 if (!groupId || !ruleId) {
-                    alert('请选择小组和积分规则');
+                    showAlert('请选择小组和积分规则');
                     return;
                 }
                 
@@ -3755,12 +4362,12 @@ function initializePages() {
                 const groupStudents = students.filter(s => s.groupId === groupId);
                 
                 if (!group || !rule) {
-                    alert('所选小组或规则不存在');
+                    showAlert('所选小组或规则不存在');
                     return;
                 }
                 
                 if (groupStudents.length === 0) {
-                    alert('所选小组没有学生');
+                    showAlert('所选小组没有学生');
                     return;
                 }
                 
@@ -3808,7 +4415,7 @@ function initializePages() {
                 updateDashboardStats();
                 
                 // 提示成功
-                alert(`已为小组 ${group.name} 的 ${groupStudents.length} 名学生${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
+                showAlert(`已为小组 ${group.name} 的 ${groupStudents.length} 名学生${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
             } finally {
                 // 确保处理完成后重置标志，无论成功还是失败
                 setTimeout(function() {
@@ -4093,132 +4700,132 @@ function initializePages() {
 
         // 初始化系统设置页面
         function initSettingsPage() {
+            // 辅助函数，用于安全地移除并重新绑定监听器
+            function rebindListener(elementId, eventType, handler) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    const newElement = element.cloneNode(true); // 克隆元素
+                    if (element.parentNode) {
+                        element.parentNode.replaceChild(newElement, element); // 替换旧元素以移除监听器
+                    }
+                    newElement.addEventListener(eventType, handler); // 在新元素上添加监听器
+                    return newElement; // 返回新元素以便进一步操作（如果需要）
+                } else {
+                    console.warn(`Element with ID '${elementId}' not found. Cannot bind listener.`);
+                    return null;
+                }
+            }
+
             // 备份数据按钮
-            document.getElementById('backup-data-btn').addEventListener('click', () => {
+            rebindListener('backup-data-btn', 'click', () => {
                 console.log("正在备份数据，先进行存储优化...");
-                
-                // 先优化存储，确保数据结构正确
-                optimizePointLogsStorage();
-                
-                // 延迟执行备份，确保优化完成
+                optimizePointLogsStorage(); // 确保这个函数是定义好的
                 setTimeout(() => {
                     console.log("存储优化完成，开始备份数据...");
-                    const backupData = backupAllData();
-                    console.log(`备份数据包含 ${backupData.pointLogs.length} 条积分记录, ${backupData.students.length} 名学生`);
+                    const backupData = backupAllData(); // 确保这个函数是定义好的
+                    if (backupData && backupData.pointLogs && backupData.students) {
+                        console.log(`备份数据包含 ${backupData.pointLogs.length} 条积分记录, ${backupData.students.length} 名学生`);
+                    }
                 }, 300);
             });
-            
+
             // 恢复数据按钮
-            document.getElementById('restore-data-btn').addEventListener('click', () => {
-                document.getElementById('restore-modal').classList.remove('hidden');
-                // 检查自动内部备份状态并更新信息
-                updateInternalBackupInfo();
+            rebindListener('restore-data-btn', 'click', () => {
+                const restoreModal = document.getElementById('restore-modal');
+                if (restoreModal) restoreModal.classList.remove('hidden');
+                updateInternalBackupInfo(); // 确保这个函数是定义好的
             });
-            
+
             // 清除数据按钮
-            document.getElementById('clear-data-btn').addEventListener('click', () => {
-                showConfirm('确定要清除所有数据吗？此操作无法撤销！', 
-                    function() {
-                        // 使用clearAllData函数清除所有数据
-                        clearAllData();
-                        
-                        showAlert('所有数据已清除', function() {
-                            // 强制刷新页面以确保所有数据显示正确
-                            location.reload();
+            rebindListener('clear-data-btn', 'click', function simplifiedClearDataHandler() {
+                showConfirm('确定要清除所有数据吗？此操作无法撤销！', // 确保 showConfirm 是定义好的
+                    function() { // Yes callback
+                        console.log("用户确认清除所有数据");
+                        window._systemReset = true;
+                        window._processingImport = false;
+                        window._cachedStudents = [];
+                        window._cachedGroups = [];
+                        clearAllData(); // 确保这个函数是定义好的
+                        showAlert('所有数据已清除', function() { // 确保 showAlert 是定义好的
+                            if (typeof setupImportExportListeners === 'function') {
+                                setupImportExportListeners();
+                            }
+                            const fileInput = document.getElementById('import-file');
+                            if (fileInput) fileInput.value = '';
                         });
                     }
+                    // 不需要 cancelCallback 来重新添加监听器，因为 rebindListener 已经处理了
                 );
             });
-            
+
             // 恢复模态框取消按钮
-            document.getElementById('restore-modal-cancel').addEventListener('click', () => {
-                document.getElementById('restore-modal').classList.add('hidden');
+            rebindListener('restore-modal-cancel', 'click', () => {
+                const restoreModal = document.getElementById('restore-modal');
+                if (restoreModal) restoreModal.classList.add('hidden');
             });
-            
+
             // 从文件恢复按钮
-            document.getElementById('restore-modal-submit').addEventListener('click', () => {
+            rebindListener('restore-modal-submit', 'click', () => {
                 const fileInput = document.getElementById('restore-file');
-                if (fileInput.files.length === 0) {
-                    alert('请选择备份文件');
+                if (!fileInput || fileInput.files.length === 0) {
+                    showAlert('请选择备份文件');
                     return;
                 }
-                
                 const file = fileInput.files[0];
                 const reader = new FileReader();
-                
                 reader.onload = (e) => {
                     try {
                         const jsonData = e.target.result;
-                        
-                        // 检查文件内容是否为空
-                        if (!jsonData.trim()) {
-                            alert('备份文件内容为空');
+                        if (!jsonData || !jsonData.trim()) {
+                            showAlert('备份文件内容为空');
                             return;
                         }
-                        
-                        // 尝试验证JSON格式
+                        let parsedData;
                         try {
-                            const testParse = JSON.parse(jsonData);
-                            // 检查基本数据结构
-                            if (!testParse || typeof testParse !== 'object') {
-                                alert('备份文件格式不正确：不是有效的对象结构');
-                                return;
-                            }
-                            
-                            // 检查是否包含基本数据结构
-                            const requiredStructures = ['students', 'groups', 'pointRules', 'pointLogs'];
-                            const missingStructures = requiredStructures.filter(key => !testParse[key]);
-                            
-                            if (missingStructures.length > 0) {
-                                console.warn(`警告：备份文件缺少以下结构: ${missingStructures.join(', ')}`);
-                            }
+                            parsedData = JSON.parse(jsonData);
                         } catch (parseError) {
-                            alert(`备份文件不是有效的JSON格式: ${parseError.message}`);
-                            console.error('JSON解析错误:', parseError);
+                            showAlert(`备份文件不是有效的JSON格式: ${parseError.message}`);
                             return;
                         }
-                        
-                        // 执行恢复操作
-                        const result = restoreData(jsonData);
+                        if (!parsedData || typeof parsedData !== 'object') {
+                            showAlert('备份文件格式不正确：不是有效的对象结构');
+                            return;
+                        }
+
+                        const result = restoreData(jsonData); // 确保 restoreData 是定义好的
                         if (result) {
-                            document.getElementById('restore-modal').classList.add('hidden');
-                            fileInput.value = '';
+                            const restoreModal = document.getElementById('restore-modal');
+                            if (restoreModal) restoreModal.classList.add('hidden');
+                            fileInput.value = ''; // 清空文件输入
                         }
                     } catch (error) {
-                        alert(`文件处理出错：${error.message}`);
-                        console.error('文件处理错误:', error);
+                        showAlert(`文件处理出错：${error.message}`);
                     }
                 };
-                
                 reader.onerror = () => {
-                    alert('读取文件失败，请检查文件格式或大小');
-                    console.error('文件读取错误:', reader.error);
+                    showAlert('读取文件失败，请检查文件格式或大小');
                 };
-                
                 reader.readAsText(file);
             });
-            
+
             // 从内部备份恢复按钮
-            document.getElementById('restore-internal-btn').addEventListener('click', () => {
-                showConfirm('确定要从内部备份恢复数据吗？这将覆盖当前的所有数据。', 
+            rebindListener('restore-internal-btn', 'click', () => {
+                showConfirm('确定要从内部备份恢复数据吗？这将覆盖当前的所有数据。',
                     function() {
-                        const result = restoreFromInternalBackup();
+                        const result = restoreFromInternalBackup(); // 确保这个函数是定义好的
                         if (result) {
-                            document.getElementById('restore-modal').classList.add('hidden');
+                            const restoreModal = document.getElementById('restore-modal');
+                            if (restoreModal) restoreModal.classList.add('hidden');
                         }
                     }
                 );
             });
 
             // 添加运行存储优化功能
-            document.getElementById('optimize-storage-btn').addEventListener('click', () => {
+            rebindListener('optimize-storage-btn', 'click', () => {
                 optimizePointLogsStorage();
-                showAlert('存储优化完成');
-                
-                // 显示存储信息
-                const storageInfo = loadData('app_storage_info', {});
-                const usage = getLocalStorageUsage();
-                
+                const storageInfo = loadData('app_storage_info', {}); // 确保 loadData 是定义好的
+                const usage = getLocalStorageUsage(); // 确保 getLocalStorageUsage 是定义好的
                 showAlert(`存储优化完成！\n\n` +
                       `主存储记录数: ${storageInfo.mainRecords || 0}\n` +
                       `归档月份数: ${(storageInfo.archivedMonths || []).length}\n` +
@@ -4226,8 +4833,7 @@ function initializePages() {
                       `当前存储使用: ${usage.totalMB} MB (${usage.percentUsed}%)`);
             });
             
-            // 更新设置表单
-            updateSettingsForm();
+            updateSettingsForm(); // 确保这个函数是定义好的
         }
         
         // 更新设置表单
@@ -4300,11 +4906,18 @@ function initializePages() {
                 document.getElementById('auto-backup-keep').value = settings.autoBackup.keepOnly;
             }
             
-            // 绑定设置保存事件
-            document.getElementById('settings-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveSettings();
-            });
+            // 绑定设置保存事件 - 使用cloneNode模式
+            const settingsForm = document.getElementById('settings-form');
+            if (settingsForm && settingsForm.parentNode) {
+                const newSettingsForm = settingsForm.cloneNode(true);
+                settingsForm.parentNode.replaceChild(newSettingsForm, settingsForm);
+                newSettingsForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    saveSettings();
+                });
+            } else {
+                console.warn('settings-form not found or has no parent, cannot rebind submit listener.');
+            }
         }
         
         // 更新内部备份信息
@@ -4355,18 +4968,48 @@ function initializePages() {
 
         // 清除所有数据
         function clearAllData() {
-            // 清除所有应用数据
-            localStorage.removeItem('app_students');
-            localStorage.removeItem('app_groups');
-            localStorage.removeItem('app_pointRules');
-            localStorage.removeItem('app_pointLogs');
-            localStorage.removeItem('app_rewards');
-            localStorage.removeItem('app_exchanges');
-            localStorage.removeItem('app_settings');
-            localStorage.removeItem('app_storage_info');
-            localStorage.removeItem('app_internal_backup');
-            localStorage.removeItem('app_lastBackup');
-            localStorage.removeItem('app_lastInternalBackup');
+            console.log("开始执行数据清除...");
+            // 确保记录清除操作的结果直接清除所有本地存储数据，而不仅仅是删除特定的键
+            try {
+                // 先创建一个清空标志，并立即写入localStorage
+                localStorage.setItem('app_system_reset', new Date().toISOString());
+                console.log("已设置系统重置标记");
+                
+                // 清除内存缓存变量 - 这非常重要，确保内存中的数据也被清除
+                window._cachedStudents = [];
+                window._cachedGroups = [];
+                
+                // 先清除所有应用数据键
+                localStorage.removeItem('app_students');
+                localStorage.removeItem('app_groups');
+                localStorage.removeItem('app_pointRules');
+                localStorage.removeItem('app_pointLogs');
+                localStorage.removeItem('app_rewards');
+                localStorage.removeItem('app_exchanges');
+                localStorage.removeItem('app_settings');
+                localStorage.removeItem('app_storage_info');
+                localStorage.removeItem('app_internal_backup');
+                localStorage.removeItem('app_lastBackup');
+                localStorage.removeItem('app_lastInternalBackup');
+                
+                // 额外清除所有可能的归档月份数据
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('app_pointLogs_')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                
+                // 单独处理删除，避免在循环中修改集合导致问题
+                keysToRemove.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                
+                console.log("数据清除完成，共清除" + (12 + keysToRemove.length) + "个存储项");
+            } catch (e) {
+                console.error("清除数据出错:", e);
+            }
             
             // 重置所有页面初始化状态
             for (let key in initializedPages) {
@@ -4458,7 +5101,7 @@ function initializePages() {
                     needsBackup = true;
                     message = `上次手动备份已经过去了 ${daysSinceLastBackup} 天，建议进行数据备份。`;
                 }
-            } else {
+                } else {
                 // 从未手动备份过
                 if (settings.backupReminder.enabled) {
                     needsBackup = true;
@@ -4692,11 +5335,24 @@ function initializePages() {
             const students = loadData('app_students');
             const groups = loadData('app_groups');
             
+            // 先检查是否处于规则选择模式，如果是则先保存状态
+            const isInSelectionMode = !!window._selectedRuleId;
+            const selectedRuleId = window._selectedRuleId;
+            
+            // 清除表格上的事件监听器，使用克隆节点替换的方式
+            const oldTableBody = tableBody.cloneNode(false);
+            if (tableBody.parentNode) {
+                tableBody.parentNode.replaceChild(oldTableBody, tableBody);
+            }
+            
+            // 重新获取表格主体引用
+            const newTableBody = document.getElementById('student-points-table');
+            
             // 清空表格
-            tableBody.innerHTML = '';
+            newTableBody.innerHTML = '';
             
             if (students.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">暂无学生，请添加学生</td></tr>';
+                newTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">暂无学生，请添加学生</td></tr>';
                 return;
             }
             
@@ -4711,6 +5367,12 @@ function initializePages() {
                 
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-neutral transition-colors';
+                
+                // 如果在规则选择模式，则添加特殊样式
+                if (isInSelectionMode) {
+                    row.classList.add('cursor-pointer', 'bg-yellow-50');
+                }
+                
                 row.innerHTML = `
                     <td class="px-4 py-3">
                         <div class="font-medium">${student.name}</div>
@@ -4736,32 +5398,135 @@ function initializePages() {
                         </button>
                     </td>
                 `;
-                tableBody.appendChild(row);
+                newTableBody.appendChild(row);
             });
             
-            // 绑定快速加减分按钮事件
-            document.querySelectorAll('.quick-minus-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // 默认减1分
-                    const studentId = this.getAttribute('data-id');
-                    quickAddPoints(studentId, -1);
-                });
-            });
+            // 创建新的事件处理函数
+            const handleTableClick = function(e) {
+                // 如果正在处理点击，则忽略
+                if (window._processingTableClick) return;
+                window._processingTableClick = true;
+
+                try {
+                    // 首先检查是否有选择规则模式
+                    const hasActiveRule = document.querySelector('.rule-quick-btn.ring-2.ring-primary');
+                    
+                    // 如果在规则选择模式下
+                    if (hasActiveRule) {
+                        if (e.target.closest('tr') && e.target.closest('tr').classList.contains('cursor-pointer')) {
+                            const detailBtn = e.target.closest('tr').querySelector('.custom-point-btn');
+                            if (detailBtn) {
+                                const studentId = detailBtn.getAttribute('data-id');
+                                if (studentId && window._selectedRuleId) {
+                                    applyRuleToStudent(studentId, window._selectedRuleId);
+                                    cancelStudentSelectionMode();
+                                }
+                            }
+                        }
+                    } else {
+                        // 处理快速加减分和详细操作按钮
+                        if (e.target.closest('.quick-minus-btn')) {
+                            const btn = e.target.closest('.quick-minus-btn');
+                            const studentId = btn.getAttribute('data-id');
+                            quickAddPoints(studentId, -1);
+                        } else if (e.target.closest('.quick-add-btn')) {
+                            const btn = e.target.closest('.quick-add-btn');
+                            const studentId = btn.getAttribute('data-id');
+                            quickAddPoints(studentId, 1);
+                        } else if (e.target.closest('.custom-point-btn')) {
+                            const btn = e.target.closest('.custom-point-btn');
+                            const studentId = btn.getAttribute('data-id');
+                            openQuickPointModal(studentId);
+                        }
+                    }
+                } finally {
+                    // 重置处理标志
+                    setTimeout(() => {
+                        window._processingTableClick = false;
+                    }, 300);
+                }
+            };
+
+            // 移除旧的事件监听器
+            if (window._currentTableClickHandler) {
+                newTableBody.removeEventListener('click', window._currentTableClickHandler);
+            }
+
+            // 保存新的事件处理器引用并添加监听器
+            window._currentTableClickHandler = handleTableClick;
+            newTableBody.addEventListener('click', handleTableClick);
             
-            document.querySelectorAll('.quick-add-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // 默认加1分
-                    const studentId = this.getAttribute('data-id');
-                    quickAddPoints(studentId, 1);
-                });
-            });
+            // 始终清除并重新绑定行点击事件
+            // 移除之前可能存在的学生行点击事件监听器
+            if (window._studentRowClickHandler) {
+                newTableBody.removeEventListener('click', window._studentRowClickHandler);
+            }
             
-            document.querySelectorAll('.custom-point-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-id');
-                    openQuickPointModal(studentId);
+            // 创建或更新学生行点击事件处理函数
+            window._studentRowClickHandler = function(e) {
+                // 只有在规则选择模式才处理点击
+                if (!window._selectedRuleId) return;
+                
+                // 如果正在处理点击，则忽略
+                if (window._processingStudentClick) return;
+                
+                // 设置处理中标志
+                window._processingStudentClick = true;
+                
+                // 找到被点击的行
+                const row = e.target.closest('tr');
+                if (!row || !row.classList.contains('cursor-pointer')) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                // 找到学生ID
+                const detailBtn = row.querySelector('.custom-point-btn');
+                if (!detailBtn) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                const studentId = detailBtn.getAttribute('data-id');
+                if (!studentId) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                // 保存当前选中的规则ID（可能在处理过程中被修改）
+                const currentRuleId = window._selectedRuleId;
+                
+                // 使用延时来处理，避免事件冒泡问题
+                setTimeout(() => {
+                    // 应用规则到学生
+                    applyRuleToStudent(studentId, currentRuleId);
+                    
+                    // 取消选择模式
+                    cancelStudentSelectionMode();
+                    
+                    // 重置处理标志
+                    window._processingStudentClick = false;
+                }, 10);
+            };
+            
+            // 添加事件监听器
+            newTableBody.addEventListener('click', window._studentRowClickHandler);
+            
+            // 特别处理：如果处于规则选择模式，需要高亮行
+            if (isInSelectionMode && selectedRuleId) {
+                // 重新应用选中规则视觉提示
+                document.querySelectorAll('.rule-quick-btn').forEach(btn => {
+                    if (btn.getAttribute('data-rule-id') === selectedRuleId) {
+                        btn.classList.add('ring-2', 'ring-primary');
+                    }
                 });
-            });
+                
+                // 显示取消选择按钮
+                const cancelBtn = document.getElementById('cancel-rule-selection');
+                if (cancelBtn) {
+                    cancelBtn.classList.remove('hidden');
+                }
+            }
         }
         
         // 初始化快速积分规则按钮
@@ -4769,16 +5534,25 @@ function initializePages() {
             const container = document.getElementById('quick-rule-buttons');
             const rules = loadData('app_pointRules');
             
+            // 移除容器上可能存在的点击事件监听器
+            const oldContainer = container.cloneNode(false);
+            if (container.parentNode) {
+                container.parentNode.replaceChild(oldContainer, container);
+            }
+            
+            // 重新获取容器引用
+            const newContainer = document.getElementById('quick-rule-buttons');
+            
             // 清空容器
-            container.innerHTML = '';
+            newContainer.innerHTML = '';
             
             if (rules.length === 0) {
-                container.innerHTML = '<div class="text-center w-full py-2 text-gray-500">暂无积分规则</div>';
+                newContainer.innerHTML = '<div class="text-center w-full py-2 text-gray-500">暂无积分规则</div>';
                 return;
             }
             
-            // 只显示常用的几个规则（最多6个）
-            const displayRules = rules.slice(0, 6);
+            // 只显示常用的几个规则（最多6个），并过滤掉"快速操作"规则
+            const displayRules = rules.filter(r => r.name !== '快速操作').slice(0, 6);
             
             displayRules.forEach(rule => {
                 const pointsValue = parseInt(rule.points);
@@ -4791,7 +5565,7 @@ function initializePages() {
                 btn.setAttribute('data-points', rule.points);
                 btn.innerHTML = `${rule.name} (${pointsSign}${rule.points})`;
                 
-                container.appendChild(btn);
+                newContainer.appendChild(btn);
             });
             
             // 如果有更多规则，添加"更多"按钮
@@ -4800,10 +5574,13 @@ function initializePages() {
                 moreBtn.className = 'px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-gray-200';
                 moreBtn.id = 'more-rules-btn';
                 moreBtn.textContent = '更多...';
-                container.appendChild(moreBtn);
+                newContainer.appendChild(moreBtn);
                 
                 // 绑定"更多"按钮事件
-                moreBtn.addEventListener('click', () => {
+                moreBtn.addEventListener('click', (e) => {
+                    // 阻止事件冒泡，避免触发规则按钮的委托事件
+                    e.stopPropagation();
+                    
                     showPage('points-page');
                     if (!initializedPages['points-page']) {
                         initPageOnDemand('points-page');
@@ -4811,6 +5588,9 @@ function initializePages() {
                     }
                 });
             }
+            
+            // 在初始化后重置任何可能存在的规则选择状态
+            window._selectedRuleId = null;
         }
         
         // 加载最近积分记录
@@ -4866,79 +5646,207 @@ function initializePages() {
         function setupWelcomePageListeners() {
             // 学生搜索功能
             const searchInput = document.getElementById('quick-student-search');
-            searchInput.addEventListener('input', function() {
-                filterStudentPointsTable(this.value, document.getElementById('quick-group-filter').value);
-            });
+            if (searchInput) {
+                // 先移除可能的旧事件监听器
+                searchInput.removeEventListener('input', handleSearchInput);
+                // 添加新的事件监听器
+                searchInput.addEventListener('input', handleSearchInput);
+            }
+            
+            // 学生搜索输入框处理函数
+            function handleSearchInput() {
+                const groupFilter = document.getElementById('quick-group-filter');
+                filterStudentPointsTable(this.value, groupFilter ? groupFilter.value : null);
+            }
             
             // 小组筛选功能
             const groupFilter = document.getElementById('quick-group-filter');
-            // 先填充小组选项
-            populateGroupFilter();
-            // 添加事件监听
-            groupFilter.addEventListener('change', function() {
-                filterStudentPointsTable(searchInput.value, this.value);
-            });
+            if (groupFilter) {
+                // 先填充小组选项
+                populateGroupFilter();
+                // 先移除可能的旧事件监听器
+                groupFilter.removeEventListener('change', handleGroupFilter);
+                // 添加新的事件监听器
+                groupFilter.addEventListener('change', handleGroupFilter);
+            }
+            
+            // 小组筛选处理函数
+            function handleGroupFilter() {
+                filterStudentPointsTable(searchInput ? searchInput.value : '', this.value);
+            }
             
             // 小组积分按钮事件
-            document.getElementById('quick-group-point-btn').addEventListener('click', function() {
+            const groupPointBtn = document.getElementById('quick-group-point-btn');
+            if (groupPointBtn) {
+                // 先移除可能的旧事件监听器
+                groupPointBtn.removeEventListener('click', handleGroupPointBtn);
+                // 添加新的事件监听器
+                groupPointBtn.addEventListener('click', handleGroupPointBtn);
+            }
+            
+            // 小组积分按钮处理函数
+            function handleGroupPointBtn() {
                 // 打开小组积分模态框
-                document.getElementById('group-point-modal').classList.remove('hidden');
-                // 确保小组和规则选项已填充
-                populateGroupPointModal();
-            });
+                const groupPointModal = document.getElementById('group-point-modal');
+                if (groupPointModal) {
+                    groupPointModal.classList.remove('hidden');
+                    // 确保小组和规则选项已填充
+                    populateGroupPointModal();
+                }
+            }
             
             // 小组积分模态框取消按钮
-            document.getElementById('group-point-modal-cancel').addEventListener('click', function() {
-                document.getElementById('group-point-modal').classList.add('hidden');
-            });
+            const groupPointModalCancel = document.getElementById('group-point-modal-cancel');
+            if (groupPointModalCancel) {
+                // 先移除可能的旧事件监听器
+                groupPointModalCancel.removeEventListener('click', handleGroupPointModalCancel);
+                // 添加新的事件监听器
+                groupPointModalCancel.addEventListener('click', handleGroupPointModalCancel);
+            }
+            
+            // 小组积分模态框取消按钮处理函数
+            function handleGroupPointModalCancel() {
+                const groupPointModal = document.getElementById('group-point-modal');
+                if (groupPointModal) {
+                    groupPointModal.classList.add('hidden');
+                }
+            }
             
             // 小组积分表单提交
-            document.getElementById('group-point-form').addEventListener('submit', function(e) {
+            const groupPointForm = document.getElementById('group-point-form');
+            if (groupPointForm) {
+                // 先移除可能的旧事件监听器
+                groupPointForm.removeEventListener('submit', handleGroupPointForm);
+                // 添加新的事件监听器
+                groupPointForm.addEventListener('submit', handleGroupPointForm);
+            }
+            
+            // 小组积分表单提交处理函数
+            function handleGroupPointForm(e) {
                 e.preventDefault();
                 addGroupPoints();
-                document.getElementById('group-point-modal').classList.add('hidden');
-            });
-            
-            // 绑定快速积分规则按钮事件
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('rule-quick-btn') || e.target.parentElement.classList.contains('rule-quick-btn')) {
-                    const button = e.target.classList.contains('rule-quick-btn') ? e.target : e.target.parentElement;
-                    const ruleId = button.getAttribute('data-rule-id');
-                    // 打开学生选择模式
-                    selectStudentForRule(ruleId);
+                const groupPointModal = document.getElementById('group-point-modal');
+                if (groupPointModal) {
+                    groupPointModal.classList.add('hidden');
                 }
-            });
+            }
+            
+            // 为快速积分规则按钮设置全局事件处理函数（如果不存在）
+            if (!window._handleRuleQuickBtnClick) {
+                window._handleRuleQuickBtnClick = function(e) {
+                    // 检查是否已在处理中，避免重复处理
+                    if (window._processingRuleClick) return;
+                    
+                    if (e.target && (e.target.classList.contains('rule-quick-btn') || 
+                        (e.target.parentElement && e.target.parentElement.classList.contains('rule-quick-btn')))) {
+                        // 设置处理标志
+                        window._processingRuleClick = true;
+                        
+                        // 延迟处理，防止事件冒泡导致多次处理
+                        setTimeout(() => {
+                            const button = e.target.classList.contains('rule-quick-btn') ? e.target : e.target.parentElement;
+                            const ruleId = button.getAttribute('data-rule-id');
+                            // 打开学生选择模式
+                            selectStudentForRule(ruleId);
+                            
+                            // 重置处理标志
+                            window._processingRuleClick = false;
+                        }, 10);
+                    }
+                };
+            }
+            
+            // 移除并重新绑定事件处理函数
+            document.removeEventListener('click', window._handleRuleQuickBtnClick);
+            document.addEventListener('click', window._handleRuleQuickBtnClick);
             
             // 绑定快速积分模态框事件
-            document.getElementById('quick-point-cancel').addEventListener('click', function() {
-                document.getElementById('quick-point-modal').classList.add('hidden');
-            });
+            const quickPointCancel = document.getElementById('quick-point-cancel');
+            if (quickPointCancel) {
+                // 先移除可能的旧事件监听器
+                quickPointCancel.removeEventListener('click', handleQuickPointCancel);
+                // 绑定新的事件监听器
+                quickPointCancel.addEventListener('click', handleQuickPointCancel);
+            }
             
-            document.getElementById('quick-point-confirm').addEventListener('click', function() {
+            // 快速积分取消按钮处理函数
+            function handleQuickPointCancel() {
+                const quickPointModal = document.getElementById('quick-point-modal');
+                if (quickPointModal) {
+                    quickPointModal.classList.add('hidden');
+                }
+            }
+            
+            const quickPointConfirm = document.getElementById('quick-point-confirm');
+            if (quickPointConfirm) {
+                // 先移除可能的旧事件监听器
+                quickPointConfirm.removeEventListener('click', handleQuickPointConfirm);
+                // 绑定新的事件监听器
+                quickPointConfirm.addEventListener('click', handleQuickPointConfirm);
+            }
+            
+            // 快速积分确认按钮处理函数
+            function handleQuickPointConfirm() {
                 applyQuickPoints();
-            });
+            }
             
             // 自定义积分切换
-            document.getElementById('quick-custom-point').addEventListener('click', function() {
+            const quickCustomPoint = document.getElementById('quick-custom-point');
+            if (quickCustomPoint) {
+                // 先移除可能的旧事件监听器
+                quickCustomPoint.removeEventListener('click', handleQuickCustomPoint);
+                // 添加新的事件监听器
+                quickCustomPoint.addEventListener('click', handleQuickCustomPoint);
+            }
+            
+            // 自定义积分切换处理函数
+            function handleQuickCustomPoint() {
                 const customInput = document.getElementById('custom-point-input');
-                customInput.classList.toggle('hidden');
-                if (!customInput.classList.contains('hidden')) {
-                    document.getElementById('quick-point-rules').classList.add('hidden');
-                } else {
-                    document.getElementById('quick-point-rules').classList.remove('hidden');
+                if (customInput) {
+                    customInput.classList.toggle('hidden');
+                    const quickPointRules = document.getElementById('quick-point-rules');
+                    if (quickPointRules) {
+                        if (!customInput.classList.contains('hidden')) {
+                            quickPointRules.classList.add('hidden');
+                        } else {
+                            quickPointRules.classList.remove('hidden');
+                        }
+                    }
                 }
-            });
+            }
             
             // 自定义积分加减按钮
-            document.getElementById('custom-points-minus').addEventListener('click', function() {
-                const input = document.getElementById('custom-points-value');
-                input.value = -Math.abs(parseInt(input.value) || 1);
-            });
+            const customPointsMinus = document.getElementById('custom-points-minus');
+            if (customPointsMinus) {
+                // 先移除可能的旧事件监听器
+                customPointsMinus.removeEventListener('click', handleCustomPointsMinus);
+                // 添加新的事件监听器
+                customPointsMinus.addEventListener('click', handleCustomPointsMinus);
+            }
             
-            document.getElementById('custom-points-plus').addEventListener('click', function() {
+            // 自定义积分减少按钮处理函数
+            function handleCustomPointsMinus() {
                 const input = document.getElementById('custom-points-value');
-                input.value = Math.abs(parseInt(input.value) || 1);
-            });
+                if (input) {
+                    input.value = -Math.abs(parseInt(input.value) || 1);
+                }
+            }
+            
+            const customPointsPlus = document.getElementById('custom-points-plus');
+            if (customPointsPlus) {
+                // 先移除可能的旧事件监听器
+                customPointsPlus.removeEventListener('click', handleCustomPointsPlus);
+                // 添加新的事件监听器
+                customPointsPlus.addEventListener('click', handleCustomPointsPlus);
+            }
+            
+            // 自定义积分增加按钮处理函数
+            function handleCustomPointsPlus() {
+                const input = document.getElementById('custom-points-value');
+                if (input) {
+                    input.value = Math.abs(parseInt(input.value) || 1);
+                }
+            }
         }
         
         // 小组筛选选项填充
@@ -5027,104 +5935,140 @@ function initializePages() {
                 tableBody.appendChild(row);
             });
             
-            // 重新绑定按钮事件
-            document.querySelectorAll('.quick-minus-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-id');
+            // 使用事件委托绑定按钮事件，避免重复绑定
+            // 先移除之前的事件监听器
+            tableBody.removeEventListener('click', handleTableButtonsClick);
+            // 添加新的事件监听器
+            tableBody.addEventListener('click', handleTableButtonsClick);
+            
+            // 表格按钮点击处理函数
+            function handleTableButtonsClick(e) {
+                // 首先检查是否有选择规则模式
+                const hasActiveRule = document.querySelector('.rule-quick-btn.ring-2.ring-primary');
+                
+                // 减分按钮
+                if (!hasActiveRule && e.target.closest('.quick-minus-btn')) {
+                    const btn = e.target.closest('.quick-minus-btn');
+                    const studentId = btn.getAttribute('data-id');
                     quickAddPoints(studentId, -1);
-                });
-            });
-            
-            document.querySelectorAll('.quick-add-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-id');
+                    return;
+                }
+                
+                // 加分按钮
+                if (!hasActiveRule && e.target.closest('.quick-add-btn')) {
+                    const btn = e.target.closest('.quick-add-btn');
+                    const studentId = btn.getAttribute('data-id');
                     quickAddPoints(studentId, 1);
-                });
-            });
-            
-            document.querySelectorAll('.custom-point-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-id');
+                    return;
+                }
+                
+                // 详细操作按钮
+                if (!hasActiveRule && e.target.closest('.custom-point-btn')) {
+                    const btn = e.target.closest('.custom-point-btn');
+                    const studentId = btn.getAttribute('data-id');
                     openQuickPointModal(studentId);
-                });
-            });
+                    return;
+                }
+            }
         }
         
         // 为学生快速加减分（不需要选择积分规则，使用"快速操作"规则）
         function quickAddPoints(studentId, points) {
-            const students = loadData('app_students');
-            const student = students.find(s => s.id === studentId);
-            
-            if (!student) {
-                alert('找不到该学生');
-                return;
-            }
-            
-            // 获取或创建"快速操作"积分规则
-            let quickRule = null;
-            const rules = loadData('app_pointRules');
-            quickRule = rules.find(r => r.name === '快速操作');
-            
-            if (!quickRule) {
-                // 创建快速操作规则
+            // 防止重复处理
+            if (window._processingQuickPoints) return;
+            window._processingQuickPoints = true;
+
+            try {
+                const students = loadData('app_students');
+                const student = students.find(s => s.id === studentId);
+                
+                if (!student) {
+                    showAlert('找不到该学生');
+                    return;
+                }
+                
+                // 获取或创建"快速操作"积分规则
+                let quickRule = null;
+                const rules = loadData('app_pointRules');
+                quickRule = rules.find(r => r.name === '快速操作');
+                
+                if (!quickRule) {
+                    // 创建快速操作规则
+                    const now = new Date().toISOString();
+                    quickRule = {
+                        id: generateId(),
+                        name: '快速操作',
+                        points: 0, // 这个值会在记录时被覆盖
+                        description: '快速加减分操作',
+                        createdAt: now,
+                        updatedAt: now
+                    };
+                    rules.push(quickRule);
+                    saveData('app_pointRules', rules);
+                }
+                
+                // 创建积分记录
+                const pointLogs = loadData('app_pointLogs');
                 const now = new Date().toISOString();
-                quickRule = {
+                
+                const newLog = {
                     id: generateId(),
-                    name: '快速操作',
-                    points: 0, // 这个值会在记录时被覆盖
-                    description: '快速加减分操作',
-                    createdAt: now,
-                    updatedAt: now
+                    studentId: studentId,
+                    pointRuleId: quickRule.id,
+                    points: points,
+                    reason: points > 0 ? '快速加分' : '快速减分',
+                    createdAt: now
                 };
-                rules.push(quickRule);
-                saveData('app_pointRules', rules);
+                
+                pointLogs.push(newLog);
+                
+                // 更新学生总积分
+                const studentIndex = students.findIndex(s => s.id === studentId);
+                if (studentIndex !== -1) {
+                    students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + points;
+                }
+                
+                // 保存到localStorage
+                saveData('app_pointLogs', pointLogs);
+                saveData('app_students', students);
+                
+                // 只更新当前学生的积分显示，而不是刷新整个表格
+                updateStudentPointsInTable(studentId);
+                
+                // 刷新积分记录和仪表盘统计
+                loadRecentPointsLogs();
+                updateDashboardStats();
+            } catch (error) {
+                console.error('快速加减分出错:', error);
+                showAlert('操作失败，请重试');
+            } finally {
+                // 重置处理标志
+                setTimeout(() => {
+                    window._processingQuickPoints = false;
+                }, 300); // 添加延迟以防止快速连续点击
             }
-            
-            // 创建积分记录
-            const pointLogs = loadData('app_pointLogs');
-            const now = new Date().toISOString();
-            
-            const newLog = {
-                id: generateId(),
-                studentId: studentId,
-                pointRuleId: quickRule.id,
-                points: points,
-                reason: points > 0 ? '快速加分' : '快速减分',
-                createdAt: now
-            };
-            
-            pointLogs.push(newLog);
-            
-            // 更新学生总积分
-            const studentIndex = students.findIndex(s => s.id === studentId);
-            if (studentIndex !== -1) {
-                students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + points;
-            }
-            
-            // 保存到localStorage
-            saveData('app_pointLogs', pointLogs);
-            saveData('app_students', students);
-            
-            // 只更新当前学生的积分显示，而不是刷新整个表格
-            updateStudentPointsInTable(studentId);
-            
-            // 刷新积分记录和仪表盘统计
-            loadRecentPointsLogs();
-            updateDashboardStats();
-            
-            // 移除备份操作
-            // backupAllData();
         }
         
         // 进入规则选择学生模式
         function selectStudentForRule(ruleId) {
+            // 如果已经在选择学生模式，先取消当前模式
+            if (window._selectedRuleId) {
+                // 已经有一个规则被选中，我们需要先取消它
+                cancelStudentSelectionMode();
+            }
+            
             const rules = loadData('app_pointRules');
             const rule = rules.find(r => r.id === ruleId);
             
             if (!rule) {
-                alert('找不到该积分规则');
+                showAlert('找不到该积分规则');
                 return;
             }
+            
+            // 保存当前选中的规则ID
+            window._selectedRuleId = ruleId;
+            window._selectedRuleName = rule.name;
+            window._selectedRulePoints = rule.points;
             
             // 高亮显示选中的规则按钮
             document.querySelectorAll('.rule-quick-btn').forEach(btn => {
@@ -5134,93 +6078,246 @@ function initializePages() {
                 }
             });
             
-            // 提示用户选择学生
-            alert(`已选择"${rule.name}"规则，请在下方列表中点击要操作的学生`);
+            // 显示取消选择按钮
+            const cancelBtn = document.getElementById('cancel-rule-selection');
+            if (cancelBtn) {
+                cancelBtn.classList.remove('hidden');
+                
+                // 移除可能存在的点击事件处理器
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                if (cancelBtn.parentNode) {
+                    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+                }
+                
+                // 绑定新的点击事件
+                document.getElementById('cancel-rule-selection').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelStudentSelectionMode();
+                });
+            }
             
-            // 修改学生行的点击事件，点击整行应用规则
-            const tableRows = document.querySelectorAll('#student-points-table tr');
+            // 提示用户选择学生
+            showAlert(`已选择"${rule.name}"规则，请在下方列表中点击要操作的学生`);
+            
+            // 获取学生表体
+            const tableBody = document.getElementById('student-points-table');
+            if (!tableBody) {
+                showAlert('找不到学生列表');
+                return;
+            }
+            
+            // 为每个学生行添加可点击样式
+            const tableRows = tableBody.querySelectorAll('tr');
             tableRows.forEach(row => {
                 // 找到详细操作按钮，获取学生ID
                 const detailBtn = row.querySelector('.custom-point-btn');
                 if (!detailBtn) return;
                 
-                const studentId = detailBtn.getAttribute('data-id');
-                
                 // 修改行样式为可点击
                 row.classList.add('cursor-pointer', 'bg-yellow-50');
-                
-                // 添加一次性点击事件
-                const clickHandler = function() {
-                    // 应用积分规则
-                    applyRuleToStudent(studentId, ruleId);
-                    
-                    // 移除所有行的选择模式样式和点击事件
-                    tableRows.forEach(r => {
-                        r.classList.remove('cursor-pointer', 'bg-yellow-50');
-                        r.removeEventListener('click', clickHandler);
-                    });
-                    
-                    // 移除规则按钮高亮
-                    document.querySelectorAll('.rule-quick-btn').forEach(btn => {
-                        btn.classList.remove('ring-2', 'ring-primary');
-                    });
-                };
-                
-                row.addEventListener('click', clickHandler);
             });
+            
+            // 移除之前可能存在的事件监听器
+            if (window._studentRowClickHandler) {
+                tableBody.removeEventListener('click', window._studentRowClickHandler);
+            }
+            
+            // 创建新的事件处理函数
+            window._studentRowClickHandler = function(e) {
+                // 如果没有选中规则或者正在处理中，则忽略点击
+                if (!window._selectedRuleId || window._processingStudentClick) return;
+                
+                // 设置处理中标志
+                window._processingStudentClick = true;
+                
+                // 找到被点击的行
+                const row = e.target.closest('tr');
+                if (!row) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                // 如果行没有标记为可点击状态，则忽略
+                if (!row.classList.contains('cursor-pointer')) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                // 找到学生ID
+                const detailBtn = row.querySelector('.custom-point-btn');
+                if (!detailBtn) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                const studentId = detailBtn.getAttribute('data-id');
+                if (!studentId) {
+                    window._processingStudentClick = false;
+                    return;
+                }
+                
+                // 延迟处理，避免事件冒泡和重复处理
+                setTimeout(() => {
+                    // 应用规则到学生
+                    applyRuleToStudent(studentId, window._selectedRuleId);
+                    
+                    // 取消选择模式
+                    cancelStudentSelectionMode();
+                    
+                    // 重置处理标志
+                    window._processingStudentClick = false;
+                }, 50);
+            };
+            
+            // 添加事件监听器
+            tableBody.addEventListener('click', window._studentRowClickHandler);
+        }
+        
+        // 取消学生选择模式
+        function cancelStudentSelectionMode() {
+            // 防止重复调用
+            if (window._processingCancelSelection) {
+                return;
+            }
+            
+            // 设置处理标志
+            window._processingCancelSelection = true;
+            
+            console.log("取消学生选择模式");
+            
+            try {
+                // 移除规则按钮高亮
+                document.querySelectorAll('.rule-quick-btn').forEach(btn => {
+                    btn.classList.remove('ring-2', 'ring-primary');
+                });
+                
+                // 移除学生行的可点击样式
+                const tableRows = document.querySelectorAll('#student-points-table tr');
+                tableRows.forEach(row => {
+                    row.classList.remove('cursor-pointer', 'bg-yellow-50');
+                });
+                
+                // 隐藏取消选择按钮
+                const cancelBtn = document.getElementById('cancel-rule-selection');
+                if (cancelBtn) {
+                    cancelBtn.classList.add('hidden');
+                }
+                
+                // 重置所有选择状态
+                window._selectedRuleId = null;
+                window._selectedRuleName = null;
+                window._selectedRulePoints = null;
+                window._processingStudentClick = false;
+                
+            } catch (error) {
+                console.error("取消学生选择模式时出错:", error);
+            } finally {
+                // 重置处理标志
+                setTimeout(function() {
+                    window._processingCancelSelection = false;
+                }, 100);
+            }
         }
         
         // 将规则应用于学生
         function applyRuleToStudent(studentId, ruleId) {
-            const students = loadData('app_students');
-            const rules = loadData('app_pointRules');
-            
-            const student = students.find(s => s.id === studentId);
-            const rule = rules.find(r => r.id === ruleId);
-            
-            if (!student || !rule) {
-                alert('找不到学生或积分规则');
+            // 防止重复调用，设置防抖标志
+            if (window._processingRuleApplication) {
+                console.log("正在处理规则应用，忽略重复调用");
                 return;
             }
             
-            // 创建积分记录
-            const pointLogs = loadData('app_pointLogs');
-            const now = new Date().toISOString();
+            // 设置处理中标志
+            window._processingRuleApplication = true;
             
-            const newLog = {
-                id: generateId(),
-                studentId: studentId,
-                pointRuleId: ruleId,
-                points: rule.points,
-                reason: '',
-                createdAt: now
-            };
+            // 使用规则ID获取规则信息 - 优先使用缓存的规则信息
+            const students = loadData('app_students');
             
-            pointLogs.push(newLog);
-            
-            // 更新学生总积分
-            const studentIndex = students.findIndex(s => s.id === studentId);
-            if (studentIndex !== -1) {
-                students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + parseInt(rule.points);
+            // 查找学生
+            const student = students.find(s => s.id === studentId);
+            if (!student) {
+                showAlert('找不到该学生');
+                window._processingRuleApplication = false;
+                return;
             }
             
-            // 保存到localStorage
-            saveData('app_pointLogs', pointLogs);
-            saveData('app_students', students);
+            // 如果已有缓存的规则名称和分数，则使用缓存值
+            let rule = null;
+            let pointsValue = 0;
+            let ruleName = '';
             
-            // 只更新当前学生的积分显示，而不是刷新整个表格
-            updateStudentPointsInTable(studentId);
+            if (window._selectedRuleName && ruleId === window._selectedRuleId) {
+                // 使用缓存的规则信息
+                pointsValue = parseInt(window._selectedRulePoints);
+                ruleName = window._selectedRuleName;
+            } else {
+                // 从数据库中读取规则信息
+                const rules = loadData('app_pointRules');
+                rule = rules.find(r => r.id === ruleId);
+                
+                if (!rule) {
+                    showAlert('找不到该积分规则');
+                    window._processingRuleApplication = false;
+                    return;
+                }
+                
+                pointsValue = parseInt(rule.points);
+                ruleName = rule.name;
+            }
             
-            // 刷新积分记录和仪表盘统计
-            loadRecentPointsLogs();
-            updateDashboardStats();
-            
-            // 提示用户
-            const pointsSign = parseInt(rule.points) >= 0 ? '+' : '';
-            showAlert(`已为学生"${student.name}"${parseInt(rule.points) >= 0 ? '增加' : '扣除'}积分: ${rule.name} (${pointsSign}${rule.points})`);
-            
-            // 删除自动备份代码
-            // backupAllData();
+            try {
+                // 创建积分记录
+                const pointLogs = loadData('app_pointLogs');
+                const now = new Date().toISOString();
+                
+                const newLog = {
+                    id: generateId(),
+                    studentId: studentId,
+                    pointRuleId: ruleId,
+                    points: pointsValue,
+                    reason: '',
+                    createdAt: now
+                };
+                
+                pointLogs.push(newLog);
+                
+                // 更新学生总积分
+                const studentIndex = students.findIndex(s => s.id === studentId);
+                if (studentIndex !== -1) {
+                    students[studentIndex].totalPoints = (students[studentIndex].totalPoints || 0) + pointsValue;
+                }
+                
+                // 保存到localStorage
+                saveData('app_pointLogs', pointLogs);
+                saveData('app_students', students);
+                
+                // 只更新当前学生的积分显示，而不是刷新整个表格
+                updateStudentPointsInTable(studentId);
+                
+                // 刷新积分记录和仪表盘统计
+                loadRecentPointsLogs();
+                updateDashboardStats();
+                
+                // 提示用户
+                const pointsSign = pointsValue >= 0 ? '+' : '';
+                showAlert(`已为学生"${student.name}"${pointsValue >= 0 ? '增加' : '扣除'}积分: ${ruleName} (${pointsSign}${pointsValue})`);
+            } catch (error) {
+                console.error("应用规则时出错:", error);
+                showAlert('应用规则时出错，请刷新页面后重试');
+            } finally {
+                // 确保在处理完成后重置状态标志
+                setTimeout(function() {
+                    window._processingRuleApplication = false;
+                    
+                    // 清除缓存的规则信息
+                    if (window._selectedRuleId === ruleId) {
+                        window._selectedRuleId = null;
+                        window._selectedRuleName = null;
+                        window._selectedRulePoints = null;
+                    }
+                }, 300); // 添加小延迟防止快速连续点击
+            }
         }
         
         // 打开快速积分操作模态框
@@ -5231,7 +6328,7 @@ function initializePages() {
             
             const student = students.find(s => s.id === studentId);
             if (!student) {
-                alert('找不到该学生');
+                showAlert('找不到该学生');
                 return;
             }
             
@@ -5258,15 +6355,23 @@ function initializePages() {
                 rulesContainer.appendChild(btn);
             });
             
-            // 绑定规则选择按钮事件
-            document.querySelectorAll('.modal-rule-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+            // 绑定规则选择按钮事件（使用事件委托）
+            const handleModalRuleClick = function(e) {
+                if (e.target && (e.target.classList.contains('modal-rule-btn') || 
+                    (e.target.parentElement && e.target.parentElement.classList.contains('modal-rule-btn')))) {
+                    const button = e.target.classList.contains('modal-rule-btn') ? e.target : e.target.parentElement;
+                    
                     // 移除所有按钮的选中状态
                     document.querySelectorAll('.modal-rule-btn').forEach(b => b.classList.remove('ring-2', 'ring-primary'));
                     // 添加当前按钮的选中状态
-                    this.classList.add('ring-2', 'ring-primary');
-                });
-            });
+                    button.classList.add('ring-2', 'ring-primary');
+                }
+            };
+            
+            // 先移除可能存在的事件监听器
+            rulesContainer.removeEventListener('click', handleModalRuleClick);
+            // 添加事件监听器到容器
+            rulesContainer.addEventListener('click', handleModalRuleClick);
             
             // 重置模态框状态
             document.getElementById('custom-point-input').classList.add('hidden');
@@ -5291,7 +6396,7 @@ function initializePages() {
             const student = students.find(s => s.id === studentId);
             
             if (!student) {
-                alert('找不到该学生');
+                showAlert('找不到该学生');
                 return;
             }
             
@@ -5304,7 +6409,7 @@ function initializePages() {
                 // 使用规则
                 const selectedRule = document.querySelector('.modal-rule-btn.ring-2');
                 if (!selectedRule) {
-                    alert('请选择积分规则或使用自定义积分');
+                    showAlert('请选择积分规则或使用自定义积分');
                     return;
                 }
                 
@@ -5313,7 +6418,7 @@ function initializePages() {
                 const rule = rules.find(r => r.id === ruleId);
                 
                 if (!rule) {
-                    alert('找不到该积分规则');
+                    showAlert('找不到该积分规则');
                     return;
                 }
                 
@@ -5324,7 +6429,7 @@ function initializePages() {
                 points = parseInt(document.getElementById('custom-points-value').value);
                 
                 if (isNaN(points) || points === 0) {
-                    alert('请输入有效的积分值');
+                    showAlert('请输入有效的积分值');
                     return;
                 }
                 
@@ -5447,12 +6552,12 @@ function initializePages() {
             renderGroupList();
             
             // 积分管理页面刷新
-            renderPointRuleList();
-            renderPointLogList();
+            if (typeof renderRuleList === 'function') renderRuleList();
+            if (typeof renderPointLogList === 'function') renderPointLogList();
             
             // 激励兑换页面刷新
-            renderRewardList();
-            renderExchangeHistory();
+            if (typeof renderRewardList === 'function') renderRewardList();
+            if (typeof renderExchangeHistory === 'function') renderExchangeHistory();
         }
         
         // 只更新表格中特定学生的积分信息
@@ -5477,83 +6582,333 @@ function initializePages() {
         
         // 自定义Alert弹窗函数，替代原生alert
         function showAlert(message, callback) {
-            // 创建弹窗容器
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'fixed inset-0 flex items-center justify-center z-50';
-            alertDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+            // 如果存在特殊标记且非导入结果提示，则不显示弹窗，避免连锁反应
+            if (window._showingImportAlert === true && !window._insideImportProcess) {
+                console.log("导入提示正在显示中，跳过其他弹窗显示");
+                if (typeof callback === 'function') {
+                    setTimeout(callback, 10);
+                }
+                return;
+            }
             
-            // 弹窗内容
-            alertDiv.innerHTML = `
-                <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">系统提示</h3>
-                    <div class="text-sm text-gray-600 mb-6">${message.replace(/\n/g, '<br>')}</div>
-                    <div class="flex justify-end">
-                        <button id="alert-ok-btn" class="btn btn-primary">确定</button>
+            // 如果当前已有弹窗在处理中，延迟显示以避免冲突
+            if (window._processingDialog === true) {
+                console.log("已有弹窗正在处理中，延迟显示新弹窗");
+                setTimeout(() => showAlert(message, callback), 500);
+                return;
+            }
+            
+            // 添加时间戳防抖，避免短时间内多次调用
+            const currentTime = Date.now();
+            if (window._lastAlertTime && (currentTime - window._lastAlertTime < 300)) {
+                console.log("弹窗调用过于频繁，合并处理");
+                setTimeout(() => showAlert(message, callback), 300);
+                return;
+            }
+            window._lastAlertTime = currentTime;
+            
+            // 先清除所有已存在的弹窗
+            closeAllDialogs();
+            
+            // 标记当前正在处理弹窗
+            window._processingDialog = true;
+            
+            // 立即处理，不使用延时
+            try {
+                
+                // 创建弹窗容器
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'fixed inset-0 flex items-center justify-center z-50 alert-dialog';
+                alertDiv.setAttribute('data-dialog-type', 'alert');
+                alertDiv.setAttribute('data-dialog-id', currentTime.toString());
+                alertDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+                
+                // 使用带时间戳的ID确保唯一性，避免ID冲突
+                const dialogId = currentTime.toString();
+                const okBtnId = 'alert-ok-btn-' + dialogId;
+                
+                // 弹窗内容
+                alertDiv.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">系统提示</h3>
+                        <div class="text-sm text-gray-600 mb-6">${message.replace(/\n/g, '<br>')}</div>
+                        <div class="flex justify-end">
+                            <button id="${okBtnId}" class="btn btn-primary">确定</button>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+                
+                // 添加到页面
+                document.body.appendChild(alertDiv);
+                
+                // 防止滚动
+                document.body.style.overflow = 'hidden';
+                
+                // 弹窗清理函数，确保状态重置和回调执行
+                const cleanupAlert = function() {
+                    // 先移除事件监听，防止重复触发
+                    if (document.getElementById(okBtnId)) {
+                        const okBtn = document.getElementById(okBtnId);
+                        okBtn.removeEventListener('click', cleanupAlert);
+                    }
+                    
+                    // 移除背景点击事件
+                    if (alertDiv) {
+                        alertDiv.removeEventListener('click', backgroundClickHandler);
+                    }
+                    
+                    // 移除弹窗元素
+                    if (alertDiv && alertDiv.parentNode) {
+                        try {
+                            document.body.removeChild(alertDiv);
+                        } catch (e) {
+                            console.error("移除Alert弹窗失败:", e);
+                        }
+                    }
+                    
+                    // 恢复页面状态
+                    document.body.style.overflow = '';
+                    window._processingDialog = false;
+                    
+                    // 执行回调，使用setTimeout确保DOM已更新
+                    if (typeof callback === 'function') {
+                        setTimeout(callback, 10);
+                    }
+                };
+                
+                // 背景点击处理函数
+                const backgroundClickHandler = function(e) {
+                    if (e.target === alertDiv) {
+                        cleanupAlert();
+                    }
+                };
+                
+                // 绑定确定按钮事件
+                const okBtn = document.getElementById(okBtnId);
+                if (okBtn) {
+                    okBtn.addEventListener('click', cleanupAlert);
+                    
+                    // 聚焦确定按钮
+                    setTimeout(() => {
+                        try {
+                            okBtn.focus();
+                        } catch (e) {
+                            console.error("无法聚焦按钮:", e);
+                        }
+                    }, 100);
+                }
+                
+                // 添加点击背景关闭弹窗的功能
+                alertDiv.addEventListener('click', backgroundClickHandler);
+                
+            } catch (error) {
+                console.error("显示Alert弹窗时出错:", error);
+                window._processingDialog = false;
+                if (typeof callback === 'function') {
+                    setTimeout(callback, 10);
+                }
+            }
+        }
+        
+        // 关闭所有弹窗的辅助函数
+        function closeAllDialogs() {
+            console.log("正在关闭所有已有弹窗...");
+            // 关闭所有自定义弹窗，但保留系统功能模态框
+            const existingAlertDialogs = document.querySelectorAll('.alert-dialog');
+            const existingConfirmDialogs = document.querySelectorAll('.confirm-dialog');
             
-            // 添加到页面
-            document.body.appendChild(alertDiv);
+            const dialogsToRemove = [];
             
-            // 防止滚动
-            document.body.style.overflow = 'hidden';
-            
-            // 绑定确定按钮事件
-            document.getElementById('alert-ok-btn').addEventListener('click', function() {
-                document.body.removeChild(alertDiv);
-                document.body.style.overflow = '';
-                if (typeof callback === 'function') callback();
+            // 收集所有自定义警告和确认弹窗
+            existingAlertDialogs.forEach(dialog => {
+                if (dialog && dialog.parentNode) {
+                    dialogsToRemove.push(dialog);
+                }
             });
             
-            // 聚焦确定按钮
+            existingConfirmDialogs.forEach(dialog => {
+                if (dialog && dialog.parentNode) {
+                    dialogsToRemove.push(dialog);
+                }
+            });
+            
+            console.log(`找到 ${dialogsToRemove.length} 个自定义弹窗需要移除`);
+            
+            if (dialogsToRemove.length === 0) {
+                // 重置处理状态
+                window._processingDialog = false;
+                document.body.style.overflow = '';
+                return;
+            }
+            
+            // 延迟一帧后再移除，避免同时操作DOM的问题
             setTimeout(() => {
-                document.getElementById('alert-ok-btn').focus();
-            }, 100);
+                // 依次移除收集到的弹窗
+                dialogsToRemove.forEach(dialog => {
+                    try {
+                        if (dialog.parentNode === document.body) {
+                            document.body.removeChild(dialog);
+                        } else if (dialog.parentNode) {
+                            dialog.parentNode.removeChild(dialog);
+                        }
+                    } catch (e) {
+                        console.error("移除弹窗失败:", e);
+                    }
+                });
+                
+                // 重置处理标志
+                window._processingDialog = false;
+                
+                // 恢复滚动
+                document.body.style.overflow = '';
+            }, 0);
         }
         
         // 自定义Confirm弹窗函数，替代原生confirm
         function showConfirm(message, confirmCallback, cancelCallback) {
-            // 创建弹窗容器
-            const confirmDiv = document.createElement('div');
-            confirmDiv.className = 'fixed inset-0 flex items-center justify-center z-50';
-            confirmDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+            // 如果当前已有弹窗在处理中，延迟显示以避免冲突
+            if (window._processingDialog === true) {
+                console.log("已有弹窗正在处理中，延迟显示确认弹窗");
+                setTimeout(() => showConfirm(message, confirmCallback, cancelCallback), 500);
+                return;
+            }
             
-            // 弹窗内容
-            confirmDiv.innerHTML = `
-                <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">确认操作</h3>
-                    <div class="text-sm text-gray-600 mb-6">${message.replace(/\n/g, '<br>')}</div>
-                    <div class="flex justify-end space-x-2">
-                        <button id="confirm-cancel-btn" class="btn btn-outline">取消</button>
-                        <button id="confirm-ok-btn" class="btn btn-primary">确定</button>
+            // 添加时间戳防抖，避免短时间内多次调用
+            const currentTime = Date.now();
+            if (window._lastConfirmTime && (currentTime - window._lastConfirmTime < 300)) {
+                console.log("确认弹窗调用过于频繁，合并处理");
+                setTimeout(() => showConfirm(message, confirmCallback, cancelCallback), 300);
+                return;
+            }
+            window._lastConfirmTime = currentTime;
+            
+            // 先清除所有已存在的弹窗
+            closeAllDialogs();
+            
+            // 标记当前正在处理弹窗
+            window._processingDialog = true;
+            
+            // 立即处理，不使用延时
+            try {
+                
+                // 创建弹窗容器
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'fixed inset-0 flex items-center justify-center z-50 confirm-dialog';
+                confirmDiv.setAttribute('data-dialog-type', 'confirm');
+                confirmDiv.setAttribute('data-dialog-id', currentTime.toString());
+                confirmDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+                
+                // 使用带时间戳的ID确保唯一性，避免ID冲突
+                const dialogId = currentTime.toString();
+                const okBtnId = 'confirm-ok-btn-' + dialogId;
+                const cancelBtnId = 'confirm-cancel-btn-' + dialogId;
+                
+                // 弹窗内容
+                confirmDiv.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">确认操作</h3>
+                        <div class="text-sm text-gray-600 mb-6">${message.replace(/\n/g, '<br>')}</div>
+                        <div class="flex justify-end space-x-2">
+                            <button id="${cancelBtnId}" class="btn btn-outline">取消</button>
+                            <button id="${okBtnId}" class="btn btn-primary">确定</button>
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            // 添加到页面
-            document.body.appendChild(confirmDiv);
-            
-            // 防止滚动
-            document.body.style.overflow = 'hidden';
-            
-            // 绑定按钮事件
-            document.getElementById('confirm-ok-btn').addEventListener('click', function() {
-                document.body.removeChild(confirmDiv);
-                document.body.style.overflow = '';
-                if (typeof confirmCallback === 'function') confirmCallback(true);
-            });
-            
-            document.getElementById('confirm-cancel-btn').addEventListener('click', function() {
-                document.body.removeChild(confirmDiv);
-                document.body.style.overflow = '';
-                if (typeof cancelCallback === 'function') cancelCallback(false);
-            });
-            
-            // 聚焦确定按钮
-            setTimeout(() => {
-                document.getElementById('confirm-ok-btn').focus();
-            }, 100);
+                `;
+                
+                // 添加到页面
+                document.body.appendChild(confirmDiv);
+                
+                // 防止滚动
+                document.body.style.overflow = 'hidden';
+                
+                // 清理函数，避免重复代码
+                const cleanup = function(isConfirmed) {
+                    // 先移除按钮事件监听，防止重复触发
+                    const okBtn = document.getElementById(okBtnId);
+                    if (okBtn) {
+                        okBtn.removeEventListener('click', confirmHandler);
+                    }
+                    
+                    const cancelBtn = document.getElementById(cancelBtnId);
+                    if (cancelBtn) {
+                        cancelBtn.removeEventListener('click', cancelHandler);
+                    }
+                    
+                    // 移除背景点击事件
+                    if (confirmDiv) {
+                        confirmDiv.removeEventListener('click', backgroundClickHandler);
+                    }
+                    
+                    // 移除弹窗元素
+                    if (confirmDiv && confirmDiv.parentNode) {
+                        try {
+                            document.body.removeChild(confirmDiv);
+                        } catch (e) {
+                            console.error("移除Confirm弹窗失败:", e);
+                        }
+                    }
+                    
+                    // 恢复页面状态
+                    document.body.style.overflow = '';
+                    window._processingDialog = false;
+                    
+                    // 执行回调，使用setTimeout确保DOM已更新
+                    if (isConfirmed) {
+                        if (typeof confirmCallback === 'function') {
+                            setTimeout(() => confirmCallback(true), 10);
+                        }
+                    } else {
+                        if (typeof cancelCallback === 'function') {
+                            setTimeout(() => cancelCallback(false), 10);
+                        }
+                    }
+                };
+                
+                // 预先定义事件处理函数，避免重复创建闭包
+                const confirmHandler = function() {
+                    cleanup(true);
+                };
+                
+                const cancelHandler = function() {
+                    cleanup(false);
+                };
+                
+                // 背景点击处理函数
+                const backgroundClickHandler = function(e) {
+                    if (e.target === confirmDiv) {
+                        cleanup(false);
+                    }
+                };
+                
+                // 绑定按钮事件
+                const okBtn = document.getElementById(okBtnId);
+                if (okBtn) {
+                    okBtn.addEventListener('click', confirmHandler);
+                }
+                
+                const cancelBtn = document.getElementById(cancelBtnId);
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', cancelHandler);
+                }
+                
+                // 点击背景时取消
+                confirmDiv.addEventListener('click', backgroundClickHandler);
+                
+                // 聚焦确定按钮
+                setTimeout(() => {
+                    try {
+                        if (okBtn) okBtn.focus();
+                    } catch (e) {
+                        console.error("无法聚焦按钮:", e);
+                    }
+                }, 100);
+            } catch (error) {
+                console.error("显示Confirm弹窗时出错:", error);
+                window._processingDialog = false;
+                if (typeof cancelCallback === 'function') {
+                    setTimeout(() => cancelCallback(false), 10);
+                }
+            }
         }
     </script>
 </body>
