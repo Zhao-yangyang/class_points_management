@@ -3140,6 +3140,8 @@ function addStudentPoints() {
     
     // 刷新积分记录
     renderRecentPointsLog();
+    // 同时更新首页的最近积分记录
+    loadRecentPointsLogs();
     
     // 提示成功
     showAlert(`已为学生 ${student.name} ${parseInt(rule.points) >= 0 ? '增加' : '扣除'} ${Math.abs(rule.points)} 积分`);
@@ -3223,6 +3225,11 @@ function addGroupPoints() {
         
         // 刷新积分记录和仪表盘统计
         loadRecentPointsLogs();
+        // 如果当前在积分管理页面，也要更新积分管理页面的最近记录
+        const currentPage = document.querySelector('[id$="-page"]:not(.hidden)');
+        if (currentPage && currentPage.id === 'points-page') {
+            renderRecentPointsLog();
+        }
         updateDashboardStats();
         
         // 提示成功
@@ -4163,7 +4170,7 @@ function initStudentPointsTable() {
     newTableBody.innerHTML = '';
     
     if (students.length === 0) {
-        newTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">暂无学生，请添加学生</td></tr>';
+        newTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">暂无学生，请添加学生</td></tr>';
         return;
     }
     
@@ -4177,34 +4184,38 @@ function initStudentPointsTable() {
         const pointsClass = totalPoints >= 0 ? 'text-green-600' : 'text-red-600';
         
         const row = document.createElement('tr');
-        row.className = 'hover:bg-neutral transition-colors';
+        row.className = 'hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100';
         
         // 如果在规则选择模式，则添加特殊样式
         if (isInSelectionMode) {
-            row.classList.add('cursor-pointer', 'bg-yellow-50');
+            row.classList.add('cursor-pointer', 'bg-yellow-50', 'hover:bg-yellow-100');
         }
         
         row.innerHTML = `
-            <td class="px-4 py-3">
-                <div class="font-medium">${student.name}</div>
+            <td class="px-4 py-4">
+                <div class="font-medium text-gray-900">${student.name}</div>
             </td>
-            <td class="px-4 py-3 text-gray-600">${student.studentId}</td>
-            <td class="px-4 py-3 text-gray-600">${groupName}</td>
-            <td class="px-4 py-3 text-center">
-                <span class="${pointsClass} font-medium">${totalPoints}</span>
+            <td class="px-4 py-4">
+                <div class="text-gray-600 text-sm">${student.studentId}</div>
             </td>
-            <td class="px-4 py-3 text-center">
-                <div class="flex items-center justify-center space-x-2">
-                    <button class="quick-minus-btn bg-red-100 text-red-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-200" data-id="${student.id}">
-                        <i class="material-icons" style="font-size: 16px;">remove</i>
+            <td class="px-4 py-4">
+                <div class="text-gray-600 text-sm">${groupName}</div>
+            </td>
+            <td class="px-4 py-4 text-center">
+                <span class="${pointsClass} font-semibold text-lg">${totalPoints}</span>
+            </td>
+            <td class="px-4 py-4">
+                <div class="flex items-center justify-center space-x-3">
+                    <button class="quick-minus-btn bg-red-50 text-red-600 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-100 hover:text-red-700 transition-all duration-200 shadow-sm hover:shadow-md" data-id="${student.id}" title="减1分">
+                        <i class="material-icons" style="font-size: 18px;">remove</i>
                     </button>
-                    <button class="quick-add-btn bg-green-100 text-green-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-green-200" data-id="${student.id}">
-                        <i class="material-icons" style="font-size: 16px;">add</i>
+                    <button class="quick-add-btn bg-green-50 text-green-600 rounded-full w-8 h-8 flex items-center justify-center hover:bg-green-100 hover:text-green-700 transition-all duration-200 shadow-sm hover:shadow-md" data-id="${student.id}" title="加1分">
+                        <i class="material-icons" style="font-size: 18px;">add</i>
                     </button>
                 </div>
             </td>
-            <td class="px-4 py-3 text-right">
-                <button class="custom-point-btn bg-primary text-white px-2 py-1 rounded hover:bg-primary-dark transition-colors" data-id="${student.id}">
+            <td class="px-4 py-4 text-right">
+                <button class="custom-point-btn bg-primary text-white px-3 py-2 rounded-lg hover:bg-primary-dark transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md" data-id="${student.id}">
                     详细操作
                 </button>
             </td>
@@ -4848,6 +4859,11 @@ function quickAddPoints(studentId, points) {
         
         // 刷新积分记录和仪表盘统计
         loadRecentPointsLogs();
+        // 如果当前在积分管理页面，也要更新积分管理页面的最近记录
+        const currentPage = document.querySelector('[id$="-page"]:not(.hidden)');
+        if (currentPage && currentPage.id === 'points-page') {
+            renderRecentPointsLog();
+        }
         updateDashboardStats();
     } catch (error) {
         console.error('快速加减分出错:', error);
@@ -5108,6 +5124,11 @@ function applyRuleToStudent(studentId, ruleId) {
         
         // 刷新积分记录和仪表盘统计
         loadRecentPointsLogs();
+        // 如果当前在积分管理页面，也要更新积分管理页面的最近记录
+        const currentPage = document.querySelector('[id$="-page"]:not(.hidden)');
+        if (currentPage && currentPage.id === 'points-page') {
+            renderRecentPointsLog();
+        }
         updateDashboardStats();
         
         // 提示用户
@@ -5301,6 +5322,11 @@ function applyQuickPoints() {
     
     // 刷新积分记录和仪表盘统计
     loadRecentPointsLogs();
+    // 如果当前在积分管理页面，也要更新积分管理页面的最近记录
+    const currentPage = document.querySelector('[id$="-page"]:not(.hidden)');
+    if (currentPage && currentPage.id === 'points-page') {
+        renderRecentPointsLog();
+    }
     updateDashboardStats();
     
                             // 提示用户
@@ -5387,7 +5413,7 @@ function updateStudentPointsInTable(studentId) {
     const pointsCell = row.querySelector('td:nth-child(4)');
     if (pointsCell) {
         const pointsClass = totalPoints >= 0 ? 'text-green-600' : 'text-red-600';
-        pointsCell.innerHTML = `<span class="${pointsClass} font-medium">${totalPoints}</span>`;
+        pointsCell.innerHTML = `<span class="${pointsClass} font-semibold text-lg">${totalPoints}</span>`;
     }
 }
 

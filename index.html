@@ -136,35 +136,45 @@
                         </div>
                         
                         <!-- 学生列表表格 -->
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
                             <table class="w-full text-sm text-left">
-                                <thead class="bg-neutral text-gray-700">
+                                <thead class="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                        <th class="px-4 py-3">姓名</th>
-                                        <th class="px-4 py-3">学号</th>
-                                        <th class="px-4 py-3">小组</th>
-                                        <th class="px-4 py-3 text-center">当前积分</th>
-                                        <th class="px-4 py-3 text-center">快速操作</th>
-                                        <th class="px-4 py-3 text-right">详细操作</th>
+                                        <th class="px-4 py-4 font-semibold text-gray-700">姓名</th>
+                                        <th class="px-4 py-4 font-semibold text-gray-700">学号</th>
+                                        <th class="px-4 py-4 font-semibold text-gray-700">小组</th>
+                                        <th class="px-4 py-4 text-center font-semibold text-gray-700">当前积分</th>
+                                        <th class="px-4 py-4 text-center font-semibold text-gray-700">快速操作</th>
+                                        <th class="px-4 py-4 text-right font-semibold text-gray-700">详细操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="student-points-table" class="divide-y divide-neutral-dark">
+                                <tbody id="student-points-table" class="bg-white">
                                     <!-- 学生列表将通过JavaScript动态生成 -->
-                                    <tr class="animate-pulse">
-                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-20"></div></td>
-                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-16"></div></td>
-                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-12"></div></td>
-                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-8 mx-auto"></div></td>
-                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-24 mx-auto"></div></td>
-                                        <td class="px-4 py-3 text-right"><div class="h-5 bg-gray-200 rounded w-14 ml-auto"></div></td>
+                                    <tr class="animate-pulse border-b border-gray-100">
+                                        <td class="px-4 py-4"><div class="h-5 bg-gray-200 rounded w-20"></div></td>
+                                        <td class="px-4 py-4"><div class="h-4 bg-gray-200 rounded w-16"></div></td>
+                                        <td class="px-4 py-4"><div class="h-4 bg-gray-200 rounded w-12"></div></td>
+                                        <td class="px-4 py-4 text-center"><div class="h-6 bg-gray-200 rounded w-8 mx-auto"></div></td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="flex items-center justify-center space-x-3">
+                                                <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                                <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-right"><div class="h-8 bg-gray-200 rounded-lg w-20 ml-auto"></div></td>
                                     </tr>
-                                    <tr class="animate-pulse">
-                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-24"></div></td>
-                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-16"></div></td>
-                                        <td class="px-4 py-3"><div class="h-5 bg-gray-200 rounded w-14"></div></td>
-                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-8 mx-auto"></div></td>
-                                        <td class="px-4 py-3 text-center"><div class="h-5 bg-gray-200 rounded w-24 mx-auto"></div></td>
-                                        <td class="px-4 py-3 text-right"><div class="h-5 bg-gray-200 rounded w-14 ml-auto"></div></td>
+                                    <tr class="animate-pulse border-b border-gray-100">
+                                        <td class="px-4 py-4"><div class="h-5 bg-gray-200 rounded w-24"></div></td>
+                                        <td class="px-4 py-4"><div class="h-4 bg-gray-200 rounded w-16"></div></td>
+                                        <td class="px-4 py-4"><div class="h-4 bg-gray-200 rounded w-14"></div></td>
+                                        <td class="px-4 py-4 text-center"><div class="h-6 bg-gray-200 rounded w-8 mx-auto"></div></td>
+                                        <td class="px-4 py-4 text-center">
+                                            <div class="flex items-center justify-center space-x-3">
+                                                <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                                <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-right"><div class="h-8 bg-gray-200 rounded-lg w-20 ml-auto"></div></td>
                                     </tr>
                                 </tbody>
                             </table>
